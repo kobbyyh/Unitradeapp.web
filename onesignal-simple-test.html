@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OneSignal Simple Test - Unitrade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/onesignal-service.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+    <div class="max-w-2xl mx-auto px-4">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">OneSignal Simple Test</h1>
+        
+        <!-- Status -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4">Status</h2>
+            <div id="status" class="space-y-2">
+                <p class="text-gray-500">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Subscribe Button -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4">Step 1: Subscribe to Notifications</h2>
+            <p class="text-gray-600 mb-4">Click the button below to subscribe to push notifications. Your browser will ask for permission.</p>
+            <button onclick="subscribeToNotifications()" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                Subscribe to Notifications
+            </button>
+        </div>
+
+        <!-- Test Button -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4">Step 2: Test Notification</h2>
+            <p class="text-gray-600 mb-4">After subscribing, click this button to send a test notification to yourself.</p>
+            <button onclick="testNotification()" class="bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700">
+                Send Test Notification
+            </button>
+        </div>
+
+        <!-- Results -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Results</h2>
+            <div id="results" class="space-y-2">
+                <p class="text-gray-500">Ready to test...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isSubscribed = false;
+
+        // Check status on page load
+        setTimeout(() => {
+            updateStatus();
+        }, 2000);
+
+        function updateStatus() {
+            const statusDiv = document.getElementById('status');
+            let html = '';
+            
+            // Check if OneSignal is loaded
+            if (typeof OneSignal !== 'undefined') {
+                html += '<p class="text-green-600">✅ OneSignal SDK: Loaded</p>';
+            } else {
+                html += '<p class="text-red-600">❌ OneSignal SDK: Not loaded</p>';
+            }
+            
+            // Check service initialization
+            if (oneSignalService.isInitialized) {
+                html += '<p class="text-green-600">✅ OneSignal Service: Initialized</p>';
+                html += '<p class="text-green-600">✅ App ID: ' + oneSignalService.appId + '</p>';
+            } else {
+                html += '<p class="text-red-600">❌ OneSignal Service: Not initialized</p>';
+            }
+            
+            // Check subscription status
+            if (isSubscribed) {
+                html += '<p class="text-green-600">✅ You are subscribed to notifications</p>';
+            } else {
+                html += '<p class="text-yellow-600">⚠️ You need to subscribe to notifications</p>';
+            }
+            
+            statusDiv.innerHTML = html;
+        }
+
+        // Subscribe to notifications
+        async function subscribeToNotifications() {
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                resultsDiv.innerHTML = '<p class="text-blue-600">Subscribing to notifications...</p>';
+                
+                // Subscribe using OneSignal SDK
+                await OneSignal.showNativePrompt();
+                
+                // Get the user's player ID
+                const playerId = await OneSignal.getUserId();
+                
+                if (playerId) {
+                    isSubscribed = true;
+                    resultsDiv.innerHTML = '<p class="text-green-600">✅ Successfully subscribed to notifications! Player ID: ' + playerId + '</p>';
+                    updateStatus();
+                } else {
+                    resultsDiv.innerHTML = '<p class="text-yellow-600">⚠️ Subscription pending. Please allow notifications when prompted.</p>';
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML = '<p class="text-red-600">❌ Error subscribing: ' + error.message + '</p>';
+                console.error('Subscription error:', error);
+            }
+        }
+
+        // Test notification
+        async function testNotification() {
+            const resultsDiv = document.getElementById('results');
+            
+            if (!isSubscribed) {
+                resultsDiv.innerHTML = '<p class="text-red-600">❌ Please subscribe to notifications first!</p>';
+                return;
+            }
+            
+            try {
+                resultsDiv.innerHTML = '<p class="text-blue-600">Sending test notification...</p>';
+                
+                const testOrderData = {
+                    id: 'test_order_' + Date.now(),
+                    productTitle: 'Test Product',
+                    buyerName: 'Test Buyer',
+                    buyerPhone: '+233 123 456 789',
+                    buyerLocation: 'Accra, Ghana',
+                    totalPrice: 100.00,
+                    quantity: 1
+                };
+
+                const result = await oneSignalService.sendOrderNotification(testOrderData, 'test_seller_123');
+                
+                resultsDiv.innerHTML = '<p class="text-green-600">✅ Test notification sent! Check your browser for the notification.</p>';
+                
+            } catch (error) {
+                resultsDiv.innerHTML = '<p class="text-red-600">❌ Error: ' + error.message + '</p>';
+                console.error('Test notification error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

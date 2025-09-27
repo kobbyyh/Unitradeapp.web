@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post New Item - Unitrade</title>
+    <link rel="icon" type="image/png" href="./images/app_logo.png">
+    <link rel="shortcut icon" type="image/png" href="./images/app_logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(0, 77, 64, 0.08) 0%, rgba(20, 184, 166, 0.1) 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/80 backdrop-blur-md shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <img src="./images/app_logo.png" alt="Unitrade" class="h-10 w-10 mr-3">
+                    <span class="text-2xl font-bold text-teal-800">Unitrade</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="seller-dashboard.html" class="text-gray-600 hover:text-teal-600">
+                        <i class="fas fa-home mr-1"></i>
+                        Dashboard
+                    </a>
+                    <a href="profile-settings.html" class="text-gray-600 hover:text-teal-600">
+                        <i class="fas fa-user-cog mr-1"></i>
+                        Profile
+                    </a>
+                    <button onclick="logout()" class="text-gray-600 hover:text-teal-600">
+                        <i class="fas fa-sign-out-alt mr-1"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Post New Item</h1>
+            <p class="text-gray-600 mt-2">List your items for sale to other students</p>
+        </div>
+
+        <div class="glass-effect rounded-3xl p-8 shadow-xl">
+            <form id="itemForm">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <div>
+                            <label for="itemName" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-tag text-teal-600 mr-2"></i>
+                                Item Name *
+                            </label>
+                            <input type="text" id="itemName" name="itemName" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                                   placeholder="e.g., MacBook Pro 13-inch">
+                        </div>
+
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-list text-teal-600 mr-2"></i>
+                                Category *
+                            </label>
+                            <select id="category" name="category" required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200">
+                                <option value="">Select category</option>
+                                <option value="Food & Beverages">Food & Beverages</option>
+                                <option value="Clothing">Clothing</option>
+                                <option value="Accessories">Accessories</option>
+                                <option value="Gadgets & Electronics">Gadgets & Electronics</option>
+                                <option value="Personal Care & Beauty">Personal Care & Beauty</option>
+                                <option value="Books & Stationery">Books & Stationery</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-dollar-sign text-teal-600 mr-2"></i>
+                                Price (GHS) *
+                            </label>
+                            <input type="number" id="price" name="price" required min="0" step="0.01"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                                   placeholder="0.00">
+                        </div>
+
+                        <!-- <div>
+                            <label for="condition" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-star text-teal-600 mr-2"></i>
+                                Condition *
+                            </label>
+                            <select id="condition" name="condition" required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200">
+                                <option value="">Select condition</option>
+                                <option value="new">New</option>
+                                <option value="like-new">Like New</option>
+                                <option value="good">Good</option>
+                                <option value="fair">Fair</option>
+                                <option value="poor">Poor</option>
+                            </select>
+                        </div> -->
+
+                        <div>
+                            <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-map-marker-alt text-teal-600 mr-2"></i>
+                                Location *
+                            </label>
+                            <input type="text" id="location" name="location" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                                   placeholder="e.g., University of Ghana, Legon">
+                        </div>
+
+                        <div>
+                            <label for="contactInfo" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-phone text-teal-600 mr-2"></i>
+                                Contact Info *
+                            </label>
+                            <input type="tel" id="contactInfo" name="contactInfo" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                                   placeholder="e.g., +233 24 123 4567">
+                            <p class="text-sm text-gray-500 mt-1">Enter your contact number </p>
+                        </div>
+
+
+                        
+                        
+                        
+                        
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-align-left text-teal-600 mr-2"></i>
+                                Description *
+                            </label>
+                            <textarea id="description" name="description" required rows="6"
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                                      placeholder="Describe your item in detail..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-images text-teal-600 mr-2"></i>
+                                Item Images (Max 5)
+                            </label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center">
+                                <input type="file" id="imageUpload" multiple accept="image/*" class="hidden">
+                                <button type="button" onclick="document.getElementById('imageUpload').click()" 
+                                        class="text-teal-600 hover:text-teal-700 font-medium">
+                                    <i class="fas fa-cloud-upload-alt text-2xl mb-2 block"></i>
+                                    Click to upload images
+                                </button>
+                                <p class="text-sm text-gray-500 mt-2">PNG, JPG, JPEG up to 5MB each</p>
+                            </div>
+                            <div id="imagePreview" class="mt-4 grid grid-cols-5 gap-2"></div>
+                        </div>
+
+                        <!-- <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="negotiable" class="flex items-center">
+                                    <input type="checkbox" id="negotiable" name="negotiable" class="mr-2">
+                                    <span class="text-sm text-gray-700">Price negotiable</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label for="urgent" class="flex items-center">
+                                    <input type="checkbox" id="urgent" name="urgent" class="mr-2">
+                                    <span class="text-sm text-gray-700">Urgent sale</span>
+                                </label>
+                            </div>
+                        </div> -->
+
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end space-x-4">
+                    <button type="button" onclick="cancelPost()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition duration-200">
+                        <i class="fas fa-plus mr-2"></i>
+                        Post Item
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzyKtEKbUMt66t9Sfk_onbOcJNic_t5oc",
+            authDomain: "unitrade-d74e9.firebaseapp.com",
+            projectId: "unitrade-d74e9",
+            storageBucket: "unitrade-d74e9.firebasestorage.app",
+            messagingSenderId: "619229942843",
+            appId: "1:619229942843:web:8eced8b46057a24b04f81e",
+            measurementId: "G-6DPM2BCY97"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let userData = null;
+        let selectedImages = [];
+
+        // Check authentication state
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                if (!user.emailVerified) {
+                    alert('Please verify your email before accessing the dashboard.');
+                    window.location.href = 'email-verification.html';
+                    return;
+                }
+                currentUser = user;
+                loadUserData();
+            } else {
+                window.location.href = 'seller-login.html';
+            }
+        });
+
+        // Load user data
+        async function loadUserData() {
+            try {
+                const usersRef = collection(db, 'users');
+                const q = query(usersRef, where('email', '==', currentUser.email));
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    userData = querySnapshot.docs[0].data();
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        // Image upload handling
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            if (files.length > 5) {
+                alert('Maximum 5 images allowed');
+                return;
+            }
+            
+            selectedImages = files;
+            displayImagePreviews();
+        });
+
+        function displayImagePreviews() {
+            const previewContainer = document.getElementById('imagePreview');
+            previewContainer.innerHTML = '';
+            
+            selectedImages.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'relative';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" class="image-preview">
+                        <button type="button" onclick="removeImage(${index})" 
+                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
+                            ×
+                        </button>
+                    `;
+                    previewContainer.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Remove image
+        window.removeImage = function(index) {
+            selectedImages.splice(index, 1);
+            displayImagePreviews();
+        };
+
+        // Form submission
+        document.getElementById('itemForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validate required fields
+            const itemName = document.getElementById('itemName').value.trim();
+            const category = document.getElementById('category').value;
+            const price = document.getElementById('price').value;
+            const location = document.getElementById('location').value.trim();
+            const contactInfo = document.getElementById('contactInfo').value.trim();
+            const description = document.getElementById('description').value.trim();
+            
+            if (!itemName || !category || !price || !location || !contactInfo || !description) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            if (selectedImages.length === 0) {
+                alert('Please upload at least one image of your item.');
+                return;
+            }
+            
+            const formData = new FormData(this);
+            
+            // Prepare item data for Firebase
+            const itemData = {
+                title: formData.get('itemName'),
+                category: formData.get('category'),
+                price: parseFloat(formData.get('price')),
+                location: formData.get('location'),
+                contactInfo: formData.get('contactInfo'),
+                description: formData.get('description'),
+                sellerId: currentUser.uid,
+                sellerName: userData?.fullName || currentUser.displayName || 'Unknown Seller',
+                sellerEmail: currentUser.email,
+                sellerPhone: userData?.phone || '',
+                university: userData?.university || '',
+                isAvailable: true,
+                isSold: false,
+                views: 0,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            };
+
+            try {
+                // For now, we'll store image URLs as placeholder
+                // In a real app, you'd upload to Firebase Storage first
+                itemData.imageUrls = selectedImages.map((file, index) => `placeholder_image_${index}.jpg`);
+                
+                console.log('Posting item with data:', itemData);
+                
+                const docRef = await addDoc(collection(db, 'items'), itemData);
+                
+                console.log('Item posted successfully with ID:', docRef.id);
+                
+                // Verify the item was saved by reading it back
+                const savedItem = await getDoc(docRef);
+                console.log('Saved item verification:', savedItem.data());
+                
+                alert('Item posted successfully! It will now appear in the buyer dashboard.');
+                window.location.href = 'seller-dashboard.html';
+            } catch (error) {
+                console.error('Error posting item:', error);
+                alert('Error posting item. Please try again.\n\nError: ' + error.message);
+            }
+        });
+
+        // Cancel post
+        function cancelPost() {
+            if (confirm('Are you sure you want to cancel? All data will be lost.')) {
+                window.location.href = 'seller-dashboard.html';
+            }
+        }
+
+        // Logout function
+        window.logout = async function() {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    await signOut(auth);
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('Error signing out:', error);
+                    alert('Error signing out. Please try again.');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

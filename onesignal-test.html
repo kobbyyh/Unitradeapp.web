@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OneSignal Test - Unitrade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/onesignal-service.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">OneSignal Push Notification Test</h1>
+        
+        <!-- Configuration Status -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4">Configuration Status</h2>
+            <div id="configStatus" class="space-y-2">
+                <p class="text-gray-500">Checking configuration...</p>
+            </div>
+        </div>
+
+        <!-- Test Notification Form -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4">Test Push Notification</h2>
+            <form id="testNotificationForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Seller ID (for testing)</label>
+                    <input type="text" id="sellerId" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="seller123" value="test_seller_123" required>
+                    <p class="text-sm text-gray-500 mt-1">This will be the target seller ID for the notification</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Product Title</label>
+                    <input type="text" id="productTitle" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="iPhone 13 Pro" value="Test Product" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Buyer Name</label>
+                    <input type="text" id="buyerName" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="John Doe" value="Test Buyer" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Product Price</label>
+                    <input type="number" id="productPrice" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="100.00" value="100.00" step="0.01" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Buyer Phone</label>
+                    <input type="tel" id="buyerPhone" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="+233 123 456 789" value="+233 123 456 789" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Buyer Location</label>
+                    <input type="text" id="buyerLocation" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="Accra, Ghana" value="Accra, Ghana" required>
+                </div>
+                <button type="submit" class="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700">
+                    Send Test Push Notification
+                </button>
+            </form>
+        </div>
+
+        <!-- Subscribe to Notifications -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4">Subscribe to Notifications</h2>
+            <p class="text-gray-600 mb-4">Subscribe yourself to receive test notifications</p>
+            <button onclick="subscribeToNotifications()" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                Subscribe to Notifications
+            </button>
+        </div>
+
+        <!-- Setup Instructions -->
+        <div class="bg-blue-50 p-6 rounded-lg mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-blue-900">Setup Instructions</h2>
+            <div class="text-blue-800 space-y-3">
+                <p><strong>To send real push notifications, you need to:</strong></p>
+                <ol class="list-decimal list-inside space-y-2 ml-4">
+                    <li>Go to <a href="https://onesignal.com/" target="_blank" class="underline">OneSignal.com</a> and create a free account</li>
+                    <li>Create a new app for web push notifications</li>
+                    <li>Get your App ID, API Key, and Sender ID</li>
+                    <li>Update the configuration in <code>js/onesignal-service.js</code></li>
+                    <li>Allow notifications in your browser</li>
+                    <li>Test with real seller IDs</li>
+                </ol>
+                <p class="mt-4"><strong>See the complete setup guide:</strong> <code>ONESIGNAL_SETUP.md</code></p>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="testResults" class="space-y-2">
+                <p class="text-gray-500">Ready to test push notifications...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check configuration on page load
+        function checkConfiguration() {
+            const configDiv = document.getElementById('configStatus');
+            
+            // Check if OneSignal is loaded
+            const oneSignalLoaded = typeof OneSignal !== 'undefined';
+            const serviceInitialized = oneSignalService.isInitialized;
+            
+            let html = '';
+            
+            // Check OneSignal SDK
+            if (oneSignalLoaded) {
+                html += '<p class="text-green-600">✅ OneSignal SDK: Loaded</p>';
+            } else {
+                html += '<p class="text-red-600">❌ OneSignal SDK: Not loaded</p>';
+            }
+            
+            // Check service initialization
+            if (serviceInitialized) {
+                html += '<p class="text-green-600">✅ OneSignal Service: Initialized</p>';
+            } else {
+                html += '<p class="text-red-600">❌ OneSignal Service: Not initialized (check credentials)</p>';
+            }
+            
+            // Check if using placeholder credentials
+            if (serviceInitialized) {
+                html += '<p class="text-yellow-600">⚠️ Using placeholder credentials - update with real OneSignal credentials</p>';
+            }
+            
+            configDiv.innerHTML = html;
+        }
+
+        // Test Notification Form
+        document.getElementById('testNotificationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const orderData = {
+                id: 'test_order_' + Date.now(),
+                productTitle: document.getElementById('productTitle').value,
+                buyerName: document.getElementById('buyerName').value,
+                buyerPhone: document.getElementById('buyerPhone').value,
+                buyerLocation: document.getElementById('buyerLocation').value,
+                totalPrice: parseFloat(document.getElementById('productPrice').value),
+                productPrice: parseFloat(document.getElementById('productPrice').value),
+                quantity: 1
+            };
+
+            const sellerId = document.getElementById('sellerId').value;
+
+            try {
+                updateResults('Sending push notification...', 'info');
+                
+                const result = await oneSignalService.sendOrderNotification(orderData, sellerId);
+                updateResults('✅ Push notification sent successfully! Check for notifications.', 'success');
+            } catch (error) {
+                updateResults('❌ Error: ' + error.message, 'error');
+            }
+        });
+
+        // Subscribe to notifications
+        async function subscribeToNotifications() {
+            try {
+                updateResults('Subscribing to notifications...', 'info');
+                
+                const result = await oneSignalService.subscribeUser('current_user');
+                updateResults('✅ Successfully subscribed to notifications!', 'success');
+            } catch (error) {
+                updateResults('❌ Error subscribing: ' + error.message, 'error');
+            }
+        }
+
+        // Update test results
+        function updateResults(message, type) {
+            const resultsDiv = document.getElementById('testResults');
+            const statusClass = type === 'success' ? 'text-green-600' : 
+                              type === 'error' ? 'text-red-600' : 'text-blue-600';
+            resultsDiv.innerHTML = `<p class="${statusClass}">${message}</p>`;
+        }
+
+        // Check configuration on page load
+        setTimeout(checkConfiguration, 1000);
+    </script>
+</body>
+</html>

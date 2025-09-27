@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Unitrade</title>
+    <link rel="icon" type="image/png" href="./images/app_logo.png">
+    <link rel="shortcut icon" type="image/png" href="./images/app_logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="js/email-service.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, query, where, getDocs, orderBy, updateDoc, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzyKtEKbUMt66t9Sfk_onbOcJNic_t5oc",
+            authDomain: "unitrade-d74e9.firebaseapp.com",
+            projectId: "unitrade-d74e9",
+            storageBucket: "unitrade-d74e9.firebasestorage.app",
+            messagingSenderId: "619229942843",
+            appId: "1:619229942843:web:8eced8b46057a24b04f81e",
+            measurementId: "G-6DPM2BCY97"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+
+        // Check authentication state
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData(user);
+                loadOrders();
+            } else {
+                window.location.href = 'buyer-login.html';
+            }
+        });
+
+        async function loadUserData(user) {
+            try {
+                // User data is loaded, no need to update UI
+                console.log('User authenticated:', user.uid);
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        async function loadOrders() {
+            try {
+                console.log('Loading orders for buyer:', currentUser.uid);
+                const ordersQuery = query(
+                    collection(db, 'orders'),
+                    where('buyerId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+                const ordersSnapshot = await getDocs(ordersQuery);
+                
+                console.log('Orders query result:', ordersSnapshot.size, 'orders found');
+                
+                const orders = [];
+                ordersSnapshot.forEach((doc) => {
+                    const orderData = {
+                        id: doc.id,
+                        ...doc.data(),
+                        createdAt: doc.data().createdAt?.toDate() || new Date()
+                    };
+                    
+                    console.log('Order data:', orderData);
+                    
+                    // Only show non-cancelled orders
+                    if (orderData.status !== 'cancelled') {
+                        orders.push(orderData);
+                    }
+                });
+                
+                console.log('Filtered orders:', orders.length, 'non-cancelled orders');
+                displayOrders(orders);
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                displayOrders([]);
+            }
+        }
+
+        function displayOrders(orders) {
+            const container = document.getElementById('ordersContainer');
+            
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-shopping-cart text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">No Orders Yet</h3>
+                        <p class="text-gray-500">Start shopping to see your orders here</p>
+                        <a href="buyer-dashboard.html" class="inline-block mt-4 bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700">
+                            Browse Products
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = orders.map(order => `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">${order.productTitle || 'Product'}</h3>
+                            <p class="text-gray-600">Order #${order.id.substring(0, 8)}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}">
+                            ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        </span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Price</p>
+                            <p class="font-semibold text-gray-900">GHS ${order.totalPrice || order.productPrice || '0.00'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Seller</p>
+                            <p class="font-semibold text-gray-900">${order.sellerName || order.sellerId || 'Unknown'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Order Date</p>
+                            <p class="font-semibold text-gray-900">${formatDate(order.createdAt)}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <div class="flex-1">
+                            ${order.status === 'confirmed' ? `
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+                                    <p class="text-blue-800 font-medium">✅ Order Confirmed!</p>
+                                    <p class="text-blue-700 text-sm">The seller will contact you soon to arrange pickup/delivery.</p>
+                                    <p class="text-red-600 text-sm font-medium mt-2">⚠️ Important: Pay the seller only after receiving the item!</p>
+                                </div>
+                            ` : ''}
+                            ${order.status === 'shipped' ? `
+                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-3">
+                                    <p class="text-purple-800 font-medium">📦 Order Shipped!</p>
+                                    <p class="text-purple-700 text-sm">Your order is on its way.</p>
+                                </div>
+                            ` : ''}
+                            ${order.status === 'delivered' ? `
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+                                    <p class="text-green-800 font-medium">✅ Order Delivered!</p>
+                                    <p class="text-green-700 text-sm">Thank you for your purchase!</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="flex space-x-3">
+                            ${order.status === 'pending' ? `
+                                <button onclick="cancelOrder('${order.id}')" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                                    Cancel Order
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'pending': return 'bg-yellow-100 text-yellow-800';
+                case 'confirmed': return 'bg-blue-100 text-blue-800';
+                case 'shipped': return 'bg-purple-100 text-purple-800';
+                case 'delivered': return 'bg-green-100 text-green-800';
+                case 'cancelled': return 'bg-red-100 text-red-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function formatDate(date) {
+            if (!date) return 'Unknown date';
+            
+            // Handle Firebase timestamp objects
+            if (date && typeof date === 'object' && date.toDate) {
+                date = date.toDate();
+            }
+            
+            return new Date(date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        async function cancelOrder(orderId) {
+            if (confirm('Are you sure you want to cancel this order?')) {
+                try {
+                    console.log('Cancelling order:', orderId);
+                    console.log('Current user UID:', currentUser.uid);
+                    
+                    // First, try to find the order by searching through buyer's orders
+                    const ordersQuery = query(
+                        collection(db, 'orders'),
+                        where('buyerId', '==', currentUser.uid)
+                    );
+                    const ordersSnapshot = await getDocs(ordersQuery);
+                    
+                    let orderToCancel = null;
+                    let orderRef = null;
+                    
+                    // Look for the order with matching ID
+                    ordersSnapshot.forEach((doc) => {
+                        const orderData = doc.data();
+                        // Check if this order has the ID we're looking for
+                        if (orderData.id === orderId || doc.id === orderId) {
+                            orderToCancel = orderData;
+                            orderRef = doc.ref;
+                        }
+                    });
+                    
+                    if (!orderToCancel || !orderRef) {
+                        throw new Error('Order not found or you are not authorized to cancel this order');
+                    }
+                    
+                    console.log('Found order to cancel:', orderToCancel);
+                    
+                    // Check if the current user is authorized to cancel this order
+                    if (orderToCancel.buyerId !== currentUser.uid) {
+                        throw new Error('You are not authorized to cancel this order');
+                    }
+                    
+                    // Check if order is already cancelled
+                    if (orderToCancel.status === 'cancelled') {
+                        alert('This order is already cancelled');
+                        loadOrders(); // Refresh to remove it from the list
+                        return;
+                    }
+                    
+                    // Update the order status to cancelled
+                    await updateDoc(orderRef, {
+                        status: 'cancelled',
+                        updatedAt: new Date()
+                    });
+                    
+                    console.log('Order cancelled successfully');
+                    
+                    // Reload orders
+                    loadOrders();
+                    alert('Order cancelled successfully!');
+                } catch (error) {
+                    console.error('Error cancelling order:', error);
+                    alert(`Error cancelling order: ${error.message || 'Unknown error'}`);
+                }
+            }
+        }
+        
+        // Make cancelOrder globally accessible
+        window.cancelOrder = cancelOrder;
+
+        function logout() {
+            signOut(auth).then(() => {
+                window.location.href = 'buyer-login.html';
+            }).catch((error) => {
+                console.error('Error signing out:', error);
+            });
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <img src="./images/app_logo.png" alt="Unitrade" class="h-8 w-8 mr-3">
+                    <h1 class="text-xl font-bold text-gray-900">Unitrade</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-home mr-1"></i>Dashboard
+                    </a>
+                    <a href="buyer-orders.html" class="text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-shopping-cart mr-1"></i>My Orders
+                    </a>
+                    <a href="profile-settings.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-user-cog mr-1"></i>Profile
+                    </a>
+                    <button onclick="logout()" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900">My Orders</h2>
+            <p class="text-gray-600">Track your orders and their status</p>
+        </div>
+
+        <div id="ordersContainer" class="space-y-6">
+            <!-- Orders will be loaded here -->
+        </div>
+    </main>
+</body>
+</html>

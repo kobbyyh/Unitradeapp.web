@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - Unitrade</title>
+    <link rel="icon" type="image/png" href="./images/app_logo.png">
+    <link rel="shortcut icon" type="image/png" href="./images/app_logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(0, 77, 64, 0.08) 0%, rgba(20, 184, 166, 0.1) 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md mx-4">
+        <!-- Logo and Title -->
+        <div class="text-center mb-8">
+            <img src="../assets/app_logo.png" alt="Unitrade" class="h-20 w-20 mx-auto mb-4">
+            <h1 class="text-3xl font-bold text-gray-900">Verify Your Email</h1>
+            <p class="text-gray-600 mt-2">Check your inbox for verification link</p>
+        </div>
+
+        <!-- Verification Card -->
+        <div class="glass-effect rounded-3xl p-8 shadow-xl text-center">
+            <div class="mb-6">
+                <div class="bg-teal-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-envelope-open text-3xl text-teal-600"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">Verification Email Sent!</h2>
+                <p class="text-gray-600">
+                    We've sent a verification link to your email address. Please check your inbox and click the link to verify your account.
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                <button id="resendBtn" 
+                        class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    Resend Verification Email
+                </button>
+
+                <button id="checkVerifiedBtn" 
+                        class="w-full bg-white hover:bg-gray-50 text-teal-600 font-bold py-3 px-6 rounded-xl border-2 border-teal-600 transition duration-300 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    I've Verified My Email
+                </button>
+            </div>
+
+            <div class="mt-6 text-center">
+                <p class="text-gray-600">Didn't receive the email?</p>
+                <p class="text-sm text-gray-500 mt-1">
+                    Check your spam folder or try resending the verification email.
+                </p>
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="text-center mt-6">
+            <a href="index.html" class="text-gray-600 hover:text-teal-600">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, sendEmailVerification, onAuthStateChanged, reload } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzyKtEKbUMt66t9Sfk_onbOcJNic_t5oc",
+            authDomain: "unitrade-d74e9.firebaseapp.com",
+            projectId: "unitrade-d74e9",
+            storageBucket: "unitrade-d74e9.firebasestorage.app",
+            messagingSenderId: "619229942843",
+            appId: "1:619229942843:web:8eced8b46057a24b04f81e",
+            measurementId: "G-6DPM2BCY97"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let resendCount = 0;
+        const maxResends = 3;
+        let currentUser = null;
+
+        // Check authentication state
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                if (user.emailVerified) {
+                    // User is already verified, redirect to appropriate dashboard
+                    redirectToDashboard(user);
+                } else {
+                    // User is logged in but not verified, show verification page
+                    console.log('User logged in but email not verified');
+                }
+            } else {
+                // No user logged in, redirect to login
+                window.location.href = 'buyer-login.html';
+            }
+        });
+
+        // Redirect to appropriate dashboard based on user type
+        async function redirectToDashboard(user) {
+            try {
+                const usersRef = collection(db, 'users');
+                const q = query(usersRef, where('email', '==', user.email));
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    const userDoc = querySnapshot.docs[0].data();
+                    if (userDoc.userType === 'seller') {
+                        window.location.href = 'seller-dashboard.html';
+                    } else {
+                        window.location.href = 'buyer-dashboard.html';
+                    }
+                } else {
+                    // Default to buyer if no user type found
+                    window.location.href = 'buyer-dashboard.html';
+                }
+            } catch (error) {
+                console.error('Error checking user type:', error);
+                // Default to buyer on error
+                window.location.href = 'buyer-dashboard.html';
+            }
+        }
+
+        // Resend verification email
+        document.getElementById('resendBtn').addEventListener('click', async function() {
+            if (resendCount >= maxResends) {
+                alert('Maximum resend attempts reached. Please try again later.');
+                return;
+            }
+
+            if (!currentUser) {
+                alert('No user found. Please sign up again.');
+                window.location.href = 'buyer-signup.html';
+                return;
+            }
+
+            const button = this;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+            button.disabled = true;
+
+            try {
+                await sendEmailVerification(currentUser);
+                resendCount++;
+                alert('Verification email sent! Please check your inbox.');
+            } catch (error) {
+                console.error('Error sending verification email:', error);
+                alert('Error sending verification email. Please try again.');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        });
+
+        // Check if email is verified
+        document.getElementById('checkVerifiedBtn').addEventListener('click', async function() {
+            if (!currentUser) {
+                alert('No user found. Please sign up again.');
+                window.location.href = 'buyer-signup.html';
+                return;
+            }
+
+            const button = this;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Checking...';
+            button.disabled = true;
+
+            try {
+                // Reload user to get latest verification status
+                await reload(currentUser);
+                
+                if (currentUser.emailVerified) {
+                    // Update user document in Firestore
+                    const usersRef = collection(db, 'users');
+                    const q = query(usersRef, where('email', '==', currentUser.email));
+                    const querySnapshot = await getDocs(q);
+                    
+                    if (!querySnapshot.empty) {
+                        const userDocRef = doc(db, 'users', querySnapshot.docs[0].id);
+                        await updateDoc(userDocRef, {
+                            emailVerified: true,
+                            updatedAt: new Date()
+                        });
+                    }
+                    
+                    alert('Email verified successfully! Redirecting to dashboard...');
+                    await redirectToDashboard(currentUser);
+                } else {
+                    alert('Email not yet verified. Please check your inbox and click the verification link.');
+                }
+            } catch (error) {
+                console.error('Error checking verification:', error);
+                alert('Error checking verification status. Please try again.');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

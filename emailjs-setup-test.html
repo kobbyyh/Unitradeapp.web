@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmailJS Setup Test - Unitrade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/real-email-service.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">EmailJS Setup Test</h1>
+        
+        <!-- Configuration Status -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4">Configuration Status</h2>
+            <div id="configStatus" class="space-y-2">
+                <p class="text-gray-500">Checking configuration...</p>
+            </div>
+        </div>
+
+        <!-- Test Email Form -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4">Test Real Email</h2>
+            <form id="testEmailForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Your Email Address (for testing)</label>
+                    <input type="email" id="testEmail" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="your-email@example.com" required>
+                    <p class="text-sm text-gray-500 mt-1">Use your own email to test if emails are actually sent</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Product Title</label>
+                    <input type="text" id="productTitle" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="iPhone 13 Pro" value="Test Product" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Product Price</label>
+                    <input type="number" id="productPrice" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="100.00" value="100.00" step="0.01" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Buyer Name</label>
+                    <input type="text" id="buyerName" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="John Doe" value="Test Buyer" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Buyer Phone</label>
+                    <input type="tel" id="buyerPhone" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="+233 123 456 789" value="+233 123 456 789" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Buyer Location</label>
+                    <input type="text" id="buyerLocation" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="Accra, Ghana" value="Accra, Ghana" required>
+                </div>
+                <button type="submit" class="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700">
+                    Send Test Email to My Inbox
+                </button>
+            </form>
+        </div>
+
+        <!-- Setup Instructions -->
+        <div class="bg-blue-50 p-6 rounded-lg">
+            <h2 class="text-xl font-semibold mb-4 text-blue-900">Setup Instructions</h2>
+            <div class="text-blue-800 space-y-3">
+                <p><strong>To send real emails, you need to:</strong></p>
+                <ol class="list-decimal list-inside space-y-2 ml-4">
+                    <li>Go to <a href="https://www.emailjs.com/" target="_blank" class="underline">EmailJS.com</a> and create a free account</li>
+                    <li>Create an email service (Gmail, Outlook, etc.)</li>
+                    <li>Create an email template with the provided HTML</li>
+                    <li>Get your Public Key, Service ID, and Template ID</li>
+                    <li>Update the configuration in <code>js/real-email-service.js</code></li>
+                    <li>Test with your real email address</li>
+                </ol>
+                <p class="mt-4"><strong>See the complete setup guide:</strong> <code>EMAILJS_COMPLETE_SETUP.md</code></p>
+            </div>
+        </div>
+
+        <!-- Status Display -->
+        <div class="mt-8 bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="testResults" class="space-y-2">
+                <p class="text-gray-500">Ready to test email sending...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check configuration on page load
+        function checkConfiguration() {
+            const configDiv = document.getElementById('configStatus');
+            
+            // Check if EmailJS is loaded
+            const emailjsLoaded = typeof emailjs !== 'undefined';
+            const serviceInitialized = emailService.isInitialized;
+            
+            let html = '';
+            
+            // Check EmailJS SDK
+            if (emailjsLoaded) {
+                html += '<p class="text-green-600">✅ EmailJS SDK: Loaded</p>';
+            } else {
+                html += '<p class="text-red-600">❌ EmailJS SDK: Not loaded</p>';
+            }
+            
+            // Check service initialization
+            if (serviceInitialized) {
+                html += '<p class="text-green-600">✅ Email Service: Initialized</p>';
+            } else {
+                html += '<p class="text-red-600">❌ Email Service: Not initialized (check credentials)</p>';
+            }
+            
+            // Check if using placeholder credentials
+            if (serviceInitialized) {
+                html += '<p class="text-yellow-600">⚠️ Using placeholder credentials - update with real EmailJS credentials</p>';
+            }
+            
+            configDiv.innerHTML = html;
+        }
+
+        // Test Email Form
+        document.getElementById('testEmailForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const orderData = {
+                id: 'test_order_' + Date.now(),
+                sellerName: 'Test Seller',
+                buyerName: document.getElementById('buyerName').value,
+                buyerPhone: document.getElementById('buyerPhone').value,
+                buyerLocation: document.getElementById('buyerLocation').value,
+                productTitle: document.getElementById('productTitle').value,
+                productPrice: parseFloat(document.getElementById('productPrice').value),
+                totalPrice: parseFloat(document.getElementById('productPrice').value),
+                quantity: 1,
+                shippingAddress: document.getElementById('buyerLocation').value
+            };
+
+            const testEmail = document.getElementById('testEmail').value;
+
+            try {
+                updateResults('Sending test email...', 'info');
+                
+                // Try to send real email first
+                try {
+                    const result = await emailService.sendOrderNotification(orderData, testEmail);
+                    updateResults('✅ Real email sent successfully! Check your inbox: ' + testEmail, 'success');
+                } catch (realEmailError) {
+                    // If real email fails, show test email
+                    console.log('Real email failed, showing test email:', realEmailError);
+                    const result = await emailService.sendTestEmail(orderData, testEmail);
+                    updateResults('⚠️ Test email generated (real email failed - check EmailJS setup)', 'warning');
+                }
+            } catch (error) {
+                updateResults('❌ Error: ' + error.message, 'error');
+            }
+        });
+
+        // Update test results
+        function updateResults(message, type) {
+            const resultsDiv = document.getElementById('testResults');
+            const statusClass = type === 'success' ? 'text-green-600' : 
+                              type === 'error' ? 'text-red-600' : 
+                              type === 'warning' ? 'text-yellow-600' : 'text-blue-600';
+            resultsDiv.innerHTML = `<p class="${statusClass}">${message}</p>`;
+        }
+
+        // Check configuration on page load
+        setTimeout(checkConfiguration, 1000);
+    </script>
+</body>
+</html>

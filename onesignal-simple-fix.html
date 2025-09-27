@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OneSignal Simple Fix - Unitrade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/onesignal-service.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+    <div class="max-w-2xl mx-auto px-4">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">OneSignal Simple Fix</h1>
+        
+        <!-- Status -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4">Configuration Status</h2>
+            <div id="status" class="space-y-2">
+                <p class="text-gray-500">Loading...</p>
+            </div>
+        </div>
+
+        <!-- OneSignal Setup Instructions -->
+        <div class="bg-yellow-50 p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-yellow-900">⚠️ OneSignal Setup Required</h2>
+            <div class="text-yellow-800 space-y-3">
+                <p><strong>The error shows that your OneSignal App ID doesn't have web platforms enabled.</strong></p>
+                <p>To fix this:</p>
+                <ol class="list-decimal list-inside space-y-2 ml-4">
+                    <li>Go to your <a href="https://onesignal.com/apps" target="_blank" class="underline">OneSignal Dashboard</a></li>
+                    <li>Click on your app (App ID: 7e07771a-fbb9-4c16-acc6-e7e121038011)</li>
+                    <li>Go to <strong>Settings > Platforms</strong></li>
+                    <li>Enable <strong>Web Push</strong> platform</li>
+                    <li>Configure your website URL (e.g., http://localhost:8000 for testing)</li>
+                    <li>Save the settings</li>
+                </ol>
+                <p class="mt-4"><strong>After enabling web push, refresh this page and try again.</strong></p>
+            </div>
+        </div>
+
+        <!-- Test Button -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4">Test OneSignal</h2>
+            <p class="text-gray-600 mb-4">After enabling web push in your OneSignal dashboard, click the button below to test.</p>
+            <button onclick="testOneSignal()" class="bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700">
+                Test OneSignal
+            </button>
+        </div>
+
+        <!-- Results -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="results" class="space-y-2">
+                <p class="text-gray-500">Ready to test...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check status on page load
+        setTimeout(() => {
+            updateStatus();
+        }, 2000);
+
+        function updateStatus() {
+            const statusDiv = document.getElementById('status');
+            let html = '';
+            
+            // Check if OneSignal is loaded
+            if (typeof OneSignal !== 'undefined') {
+                html += '<p class="text-green-600">✅ OneSignal SDK: Loaded</p>';
+            } else {
+                html += '<p class="text-red-600">❌ OneSignal SDK: Not loaded</p>';
+            }
+            
+            // Check service initialization
+            if (oneSignalService.isInitialized) {
+                html += '<p class="text-green-600">✅ OneSignal Service: Initialized</p>';
+                html += '<p class="text-green-600">✅ App ID: ' + oneSignalService.appId + '</p>';
+            } else {
+                html += '<p class="text-red-600">❌ OneSignal Service: Not initialized</p>';
+            }
+            
+            statusDiv.innerHTML = html;
+        }
+
+        // Test OneSignal
+        async function testOneSignal() {
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                resultsDiv.innerHTML = '<p class="text-blue-600">Testing OneSignal...</p>';
+                
+                // Try to initialize OneSignal
+                if (typeof OneSignal !== 'undefined') {
+                    try {
+                        await OneSignal.showNativePrompt();
+                        resultsDiv.innerHTML = '<p class="text-green-600">✅ OneSignal is working! You should see a notification prompt.</p>';
+                    } catch (error) {
+                        resultsDiv.innerHTML = '<p class="text-red-600">❌ OneSignal error: ' + error.message + '</p>';
+                    }
+                } else {
+                    resultsDiv.innerHTML = '<p class="text-red-600">❌ OneSignal SDK not loaded</p>';
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML = '<p class="text-red-600">❌ Error: ' + error.message + '</p>';
+                console.error('Test error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

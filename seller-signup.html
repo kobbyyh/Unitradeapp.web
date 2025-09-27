@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Signup - Unitrade</title>
+    <link rel="icon" type="image/png" href="./images/app_logo.png">
+    <link rel="shortcut icon" type="image/png" href="./images/app_logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(0, 77, 64, 0.08) 0%, rgba(20, 184, 166, 0.1) 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #14b8a6;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen py-8">
+    <div class="max-w-2xl mx-auto px-4">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <img src="./images/app_logo.png" alt="Unitrade" class="h-16 w-16 mx-auto mb-4">
+            <h1 class="text-3xl font-bold text-gray-900">Seller Signup</h1>
+            <p class="text-gray-600 mt-2">Join Unitrade as a seller</p>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="glass-effect rounded-3xl p-8 shadow-xl">
+            <form id="signupForm" class="space-y-6">
+                <!-- Profile Image Upload -->
+                <div class="text-center">
+                    <div class="relative inline-block">
+                        <img id="profileImage" src="../assets/default_profile.png" alt="Profile" class="profile-image mx-auto mb-4">
+                        <label for="imageUpload" class="absolute bottom-0 right-0 bg-teal-600 text-white rounded-full p-2 cursor-pointer hover:bg-teal-700 transition duration-200">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" id="imageUpload" accept="image/*" class="hidden">
+                    </div>
+                    <p class="text-sm text-gray-600">Click to upload profile picture</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user text-teal-600 mr-2"></i>
+                            Full Name
+                        </label>
+                        <input type="text" id="fullName" name="fullName" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                               placeholder="Your full name">
+                    </div>
+
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-at text-teal-600 mr-2"></i>
+                            Username
+                        </label>
+                        <input type="text" id="username" name="username" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                               placeholder="Choose a username">
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="schoolId" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-id-card text-teal-600 mr-2"></i>
+                            School ID
+                        </label>
+                        <input type="text" id="schoolId" name="schoolId" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                               placeholder="Your school ID">
+                    </div>
+
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-phone text-teal-600 mr-2"></i>
+                            Phone Number
+                        </label>
+                        <input type="tel" id="phone" name="phone" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                               placeholder="Your phone number">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="university" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-university text-teal-600 mr-2"></i>
+                        University
+                    </label>
+                    <select id="university" name="university" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200">
+                        <option value="">Select your university</option>
+                        <option value="university-of-ghana">University of Ghana</option>
+                        <option value="knust">Kwame Nkrumah University of Science and Technology</option>
+                        <option value="university-of-cape-coast">University of Cape Coast</option>
+                        <option value="university-of-education">University of Education, Winneba</option>
+                        <option value="ashesi-university">Ashesi University</option>
+                        <option value="central-university">Central University</option>
+                        <option value="presbyterian-university">Presbyterian University</option>
+                        <option value="valley-view-university">Valley View University</option>
+                        <option value="methodist-university">Methodist University</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-envelope text-teal-600 mr-2"></i>
+                        University Email
+                    </label>
+                    <input type="email" id="email" name="email" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                           placeholder="your.email@university.edu">
+                </div>
+
+                <div>
+                    <label for="hostel" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-home text-teal-600 mr-2"></i>
+                        Hostel
+                    </label>
+                    <input type="text" id="hostel" name="hostel" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                           placeholder="Your hostel name">
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock text-teal-600 mr-2"></i>
+                            Password
+                        </label>
+                        <input type="password" id="password" name="password" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                               placeholder="Create a password">
+                    </div>
+
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock text-teal-600 mr-2"></i>
+                            Confirm Password
+                        </label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                               placeholder="Confirm password">
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <input type="checkbox" id="terms" name="terms" required
+                           class="mt-1 h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded">
+                    <label for="terms" class="ml-2 text-sm text-gray-700">
+                        I agree to the <a href="#" class="text-teal-600 hover:text-teal-800">Terms & Conditions</a> and <a href="#" class="text-teal-600 hover:text-teal-800">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-6 rounded-xl transition duration-300 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-store mr-2"></i>
+                    Create Seller Account
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-gray-600">Already have an account?</p>
+                <a href="seller-login.html" class="text-teal-600 hover:text-teal-800 font-medium">
+                    Login as a Seller
+                </a>
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="text-center mt-6">
+            <a href="index.html" class="text-gray-600 hover:text-teal-600">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzyKtEKbUMt66t9Sfk_onbOcJNic_t5oc",
+            authDomain: "unitrade-d74e9.firebaseapp.com",
+            projectId: "unitrade-d74e9",
+            storageBucket: "unitrade-d74e9.firebasestorage.app",
+            messagingSenderId: "619229942843",
+            appId: "1:619229942843:web:8eced8b46057a24b04f81e",
+            measurementId: "G-6DPM2BCY97"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Check if user is already logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Only redirect if email is verified
+                if (user.emailVerified) {
+                    window.location.href = 'seller-dashboard.html';
+                }
+            }
+        });
+
+        // Profile image upload functionality
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profileImage').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle signup form submission
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const fullName = formData.get('fullName');
+            const username = formData.get('username');
+            const schoolId = formData.get('schoolId');
+            const university = formData.get('university');
+            const email = formData.get('email');
+            const phone = formData.get('phone');
+            const hostel = formData.get('hostel');
+            const password = formData.get('password');
+            const confirmPassword = formData.get('confirmPassword');
+            const terms = formData.get('terms');
+            
+            // Password validation
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            // Terms validation
+            if (!terms) {
+                alert('You must agree to the Terms & Conditions');
+                return;
+            }
+            
+            // Basic validation
+            if (!fullName || !username || !schoolId || !university || !email || !phone || !hostel || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // University validation
+            if (university === '') {
+                alert('Please select your university');
+                return;
+            }
+            
+            const button = this.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Account...';
+            button.disabled = true;
+            
+            try {
+                // Create user with Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Send email verification using Firebase
+                await sendEmailVerification(user);
+                
+                // Save user data to Firestore
+                await addDoc(collection(db, 'users'), {
+                    uid: user.uid,
+                    fullName: fullName,
+                    username: username,
+                    schoolID: schoolId,
+                    university: university,
+                    email: email,
+                    phone: phone,
+                    hostel: hostel,
+                    userType: 'seller',
+                    emailVerified: false,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+                
+                // Update user profile
+                await updateProfile(user, {
+                    displayName: fullName
+                });
+                
+                console.log('Seller account created successfully:', user);
+                alert('Seller account created successfully! Please check your email for verification.');
+                window.location.href = 'email-verification.html';
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                console.error('Full error object:', JSON.stringify(error, null, 2));
+                
+                let errorMessage = 'Account creation failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'An account with this email already exists.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password should be at least 6 characters.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage = 'Email/password accounts are not enabled. Please contact support.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Please check your internet connection.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many requests. Please try again later.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = 'This account has been disabled.';
+                        break;
+                    default:
+                        errorMessage = `Account creation failed: ${error.message}`;
+                        break;
+                }
+                
+                alert(`Error: ${errorMessage}\n\nError Code: ${error.code}\n\nPlease check the console for more details.`);
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        });
+        
+        // University selection handler
+        document.getElementById('university').addEventListener('change', function() {
+            const selectedUniversity = this.value;
+            const emailInput = document.getElementById('email');
+            
+            // Update email placeholder based on university selection
+            const universityDomains = {
+                'university-of-ghana': 'ug.edu.gh',
+                'knust': 'knust.edu.gh',
+                'university-of-cape-coast': 'ucc.edu.gh',
+                'university-of-education': 'uew.edu.gh',
+                'ashesi-university': 'ashesi.edu.gh',
+                'central-university': 'central.edu.gh',
+                'presbyterian-university': 'presbyuniversity.edu.gh',
+                'valley-view-university': 'vvu.edu.gh',
+                'methodist-university': 'methodistuniversity.edu.gh'
+            };
+            
+            if (universityDomains[selectedUniversity]) {
+                emailInput.placeholder = `your.email@${universityDomains[selectedUniversity]}`;
+            } else {
+                emailInput.placeholder = 'your.email@university.edu';
+            }
+        });
+    </script>
+</body>
+</html>

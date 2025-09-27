@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unitrade - University Trading Platform</title>
+    <link rel="icon" type="image/png" href="./images/app_logo.png">
+    <link rel="shortcut icon" type="image/png" href="./images/app_logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="js/api-client.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(0, 77, 64, 0.08) 0%, rgba(20, 184, 166, 0.1) 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <img src="./images/app_logo.png" alt="Unitrade" class="h-10 w-10 mr-3">
+                    <span class="text-2xl font-bold text-teal-800">Unitrade</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="index.html" class="text-teal-600 hover:text-teal-800 px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                        <a href="buyer-login.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">Buyer Login</a>
+                        <a href="seller-login.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">Seller Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+                Welcome to <span class="text-teal-600">Unitrade</span>
+            </h1>
+            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                The ultimate university trading platform where students can buy, sell, and exchange items within their campus community.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="buyer-login.html" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition duration-300 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-shopping-cart mr-2"></i>
+                    Start Buying
+                </a>
+                <a href="seller-login.html" class="bg-white hover:bg-gray-50 text-teal-600 font-bold py-4 px-8 rounded-xl text-lg border-2 border-teal-600 transition duration-300 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-store mr-2"></i>
+                    Start Selling
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="bg-white/50 py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Why Choose Unitrade?</h2>
+                <p class="text-lg text-gray-600">Built specifically for university students</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center p-6">
+                    <div class="bg-teal-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-2xl text-teal-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Secure & Verified</h3>
+                    <p class="text-gray-600">University email verification ensures all users are legitimate students</p>
+                </div>
+                <div class="text-center p-6">
+                    <div class="bg-teal-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-map-marker-alt text-2xl text-teal-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Campus Local</h3>
+                    <p class="text-gray-600">Trade with fellow students on your campus for easy meetups</p>
+                </div>
+                <div class="text-center p-6">
+                    <div class="bg-teal-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-mobile-alt text-2xl text-teal-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Easy to Use</h3>
+                    <p class="text-gray-600">Simple interface designed for quick and easy trading</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-teal-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Unitrade</h3>
+                    <p class="text-teal-200">Connecting university students through safe and secure trading.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="buyer-login.html" class="text-teal-200 hover:text-white">Buyer Login</a></li>
+                        <li><a href="seller-login.html" class="text-teal-200 hover:text-white">Seller Login</a></li>
+                        <li><a href="buyer-signup.html" class="text-teal-200 hover:text-white">Buyer Signup</a></li>
+                        <li><a href="seller-signup.html" class="text-teal-200 hover:text-white">Seller Signup</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-teal-200 hover:text-white">Help Center</a></li>
+                        <li><a href="#" class="text-teal-200 hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="text-teal-200 hover:text-white">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-teal-200 hover:text-white"><i class="fab fa-facebook text-xl"></i></a>
+                        <a href="https://x.com/theunitradeapp?s=21 " class="text-teal-200 hover:text-white"><i class="fab fa-twitter text-xl"></i></a>
+                        <a href="#" class="text-teal-200 hover:text-white"><i class="fab fa-instagram text-xl"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-teal-700 mt-8 pt-8 text-center">
+                <p class="text-teal-200">&copy; 2025 Unitrade. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple navigation and form handling
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

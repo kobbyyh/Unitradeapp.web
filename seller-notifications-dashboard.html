@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Notifications - Unitrade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="js/firebase-notification-service.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzyKtEKbUMt66t9Sfk_onbOcJNic_t5oc",
+            authDomain: "unitrade-d74e9.firebaseapp.com",
+            projectId: "unitrade-d74e9",
+            storageBucket: "unitrade-d74e9.firebasestorage.app",
+            messagingSenderId: "619229942843",
+            appId: "1:619229942843:web:8eced8b46057a24b04f81e",
+            measurementId: "G-6DPM2BCY97"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        let currentSellerId = null;
+        let notifications = [];
+
+        // Check authentication state
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log('User is signed in:', user);
+                currentSellerId = user.uid;
+                // Make currentSellerId available globally
+                window.currentSellerId = user.uid;
+                // Call loadNotifications with the seller ID
+                loadNotifications(user.uid);
+            } else {
+                console.log('User is signed out');
+                window.location.href = 'seller-login.html';
+            }
+        });
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <img src="./images/app_logo.png" alt="Unitrade" class="h-8 w-8 mr-3">
+                    <h1 class="text-xl font-semibold text-gray-900">Seller Notifications</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="notificationCount" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
+                    <button onclick="markAllAsRead()" class="text-sm text-teal-600 hover:text-teal-800">Mark All Read</button>
+                    <a href="seller-dashboard.html" class="text-sm text-gray-600 hover:text-gray-800">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <i class="fas fa-bell text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Total Notifications</p>
+                        <p id="totalNotifications" class="text-2xl font-semibold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-2 bg-red-100 rounded-lg">
+                        <i class="fas fa-exclamation-circle text-red-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Unread</p>
+                        <p id="unreadNotifications" class="text-2xl font-semibold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-2 bg-green-100 rounded-lg">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Read</p>
+                        <p id="readNotifications" class="text-2xl font-semibold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications List -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Recent Notifications</h2>
+            </div>
+            <div id="notificationsList" class="divide-y divide-gray-200">
+                <div class="p-6 text-center text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>Loading notifications...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Functions are now called from Firebase Auth state change
+
+        // Load seller notifications
+        async function loadNotifications(sellerId) {
+            try {
+                console.log('Loading notifications for seller:', sellerId);
+                notifications = await firebaseNotificationService.getSellerNotifications(sellerId);
+                displayNotifications();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                document.getElementById('notificationsList').innerHTML = `
+                    <div class="p-6 text-center text-red-500">
+                        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                        <p>Error loading notifications: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display notifications
+        function displayNotifications() {
+            const notificationsList = document.getElementById('notificationsList');
+            
+            if (notifications.length === 0) {
+                notificationsList.innerHTML = `
+                    <div class="p-6 text-center text-gray-500">
+                        <i class="fas fa-bell-slash text-2xl mb-2"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            notificationsList.innerHTML = notifications.map(notification => `
+                <div class="p-6 ${notification.read ? 'bg-gray-50' : 'bg-white'} hover:bg-gray-50 transition-colors">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center mb-2">
+                                <div class="p-2 ${notification.read ? 'bg-gray-200' : 'bg-blue-100'} rounded-lg mr-3">
+                                    <i class="fas fa-shopping-cart ${notification.read ? 'text-gray-500' : 'text-blue-600'}"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">${notification.title}</h3>
+                                    <p class="text-sm text-gray-500">${formatDate(notification.createdAt)}</p>
+                                </div>
+                                ${!notification.read ? '<span class="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">New</span>' : ''}
+                            </div>
+                            <p class="text-gray-700 mb-4">${notification.message}</p>
+                            
+                            ${notification.orderData ? `
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <h4 class="font-semibold text-gray-900 mb-2">Order Details:</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <p><strong>Product:</strong> ${notification.orderData.productTitle}</p>
+                                            <p><strong>Price:</strong> GHS ${notification.orderData.productPrice}</p>
+                                            <p><strong>Quantity:</strong> ${notification.orderData.quantity}</p>
+                                        </div>
+                                        <div>
+                                            <p><strong>Buyer:</strong> ${notification.orderData.buyerName}</p>
+                                            <p><strong>Phone:</strong> ${notification.orderData.buyerPhone}</p>
+                                            <p><strong>Location:</strong> ${notification.orderData.buyerLocation}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="flex space-x-2">
+                                ${!notification.read ? `
+                                    <button onclick="markAsRead('${notification.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                                        Mark as Read
+                                    </button>
+                                ` : ''}
+                                <button onclick="contactBuyer('${notification.orderData?.buyerPhone || ''}')" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm">
+                                    <i class="fas fa-phone mr-1"></i> Contact Buyer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = notifications.length;
+            const unread = notifications.filter(n => !n.read).length;
+            const read = total - unread;
+
+            document.getElementById('totalNotifications').textContent = total;
+            document.getElementById('unreadNotifications').textContent = unread;
+            document.getElementById('readNotifications').textContent = read;
+            document.getElementById('notificationCount').textContent = unread;
+        }
+
+        // Mark notification as read
+        async function markAsRead(notificationId) {
+            try {
+                await firebaseNotificationService.markNotificationAsRead(notificationId);
+                
+                // Reload notifications to get updated data
+                if (window.currentSellerId) {
+                    await loadNotifications(window.currentSellerId);
+                }
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+                alert('Error marking notification as read: ' + error.message);
+            }
+        }
+
+        // Mark all notifications as read
+        async function markAllAsRead() {
+            try {
+                const unreadNotifications = notifications.filter(n => !n.read);
+                
+                for (const notification of unreadNotifications) {
+                    await firebaseNotificationService.markNotificationAsRead(notification.id);
+                }
+                
+                // Reload notifications to get updated data
+                if (window.currentSellerId) {
+                    await loadNotifications(window.currentSellerId);
+                }
+                alert('All notifications marked as read!');
+            } catch (error) {
+                console.error('Error marking all notifications as read:', error);
+                alert('Error marking all notifications as read: ' + error.message);
+            }
+        }
+
+        // Contact buyer
+        function contactBuyer(phoneNumber) {
+            if (phoneNumber) {
+                // Open phone app or copy to clipboard
+                if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
+                    window.location.href = `tel:${phoneNumber}`;
+                } else {
+                    navigator.clipboard.writeText(phoneNumber).then(() => {
+                        alert('Phone number copied to clipboard: ' + phoneNumber);
+                    });
+                }
+            } else {
+                alert('Phone number not available');
+            }
+        }
+
+        // Format date
+        function formatDate(date) {
+            if (!date) return 'Unknown date';
+            
+            const d = new Date(date);
+            const now = new Date();
+            const diffInHours = (now - d) / (1000 * 60 * 60);
+            
+            if (diffInHours < 1) {
+                return 'Just now';
+            } else if (diffInHours < 24) {
+                return `${Math.floor(diffInHours)} hours ago`;
+            } else {
+                return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+            }
+        }
+
+        // Export functions for global access
+        window.markAsRead = markAsRead;
+        window.markAllAsRead = markAllAsRead;
+        window.contactBuyer = contactBuyer;
+    </script>
+</body>
+</html>

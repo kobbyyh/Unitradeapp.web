@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Seller Dashboard | Unitrade</title>
+    <link rel="icon" type="image/png" href="./images/app_logo.png">
+    <link rel="shortcut icon" type="image/png" href="./images/app_logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(0, 77, 64, 0.08) 0%, rgba(20, 184, 166, 0.1) 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .message-bubble {
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .message-sent {
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            color: white;
+            margin-left: auto;
+        }
+        .message-received {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .conversation-item:hover {
+            background: rgba(13, 148, 136, 0.1);
+        }
+        .conversation-item.active {
+            background: rgba(13, 148, 136, 0.2);
+            border-left: 4px solid #0d9488;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/80 backdrop-blur-md shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <img src="./images/app_logo.png" alt="Unitrade" class="h-10 w-10 mr-3">
+                    <span class="text-2xl font-bold text-teal-800">Unitrade</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="seller-dashboard.html" class="text-gray-600 hover:text-teal-600">
+                        <i class="fas fa-home mr-1"></i>
+                        Dashboard
+                    </a>
+                    <a href="seller-post-item.html" class="text-gray-600 hover:text-teal-600">
+                        <i class="fas fa-plus mr-1"></i>
+                        Post Item
+                    </a>
+                    <a href="seller-profile-settings.html" class="text-gray-600 hover:text-teal-600">
+                        <i class="fas fa-user-cog mr-1"></i>
+                        Profile
+                    </a>
+                    <button onclick="logout()" class="text-gray-600 hover:text-teal-600">
+                        <i class="fas fa-sign-out-alt mr-1"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="glass-effect rounded-3xl shadow-xl overflow-hidden">
+            <div class="flex h-[600px]">
+                <!-- Conversations List -->
+                <div class="w-1/3 border-r border-gray-200 bg-gray-50">
+                    <div class="p-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">Messages</h2>
+                        <div class="mt-2 relative">
+                            <input type="text" id="searchConversations" placeholder="Search conversations..."
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                            <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <div id="conversationsList" class="overflow-y-auto h-full">
+                        <!-- Conversations will be loaded here -->
+                        <div class="p-4 text-center text-gray-500">
+                            <i class="fas fa-comments text-4xl mb-2"></i>
+                            <p>No conversations yet</p>
+                            <p class="text-sm">Buyers will contact you about your items</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="flex-1 flex flex-col">
+                    <!-- Chat Header -->
+                    <div id="chatHeader" class="p-4 border-b border-gray-200 bg-white hidden">
+                        <div class="flex items-center space-x-3">
+                            <img id="chatUserAvatar" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjIwIiBjeT0iMTUiIHI9IjgiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTggMzJDNTEgMjYgMTYgMjYgMjAgMjZTMjkgMjYgMzIgMzJIOFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+" alt="User" class="w-10 h-10 rounded-full">
+                            <div>
+                                <h3 id="chatUserName" class="font-semibold text-gray-900">User Name</h3>
+                                <p id="chatUserStatus" class="text-sm text-gray-500">Online</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="blockUser()" class="p-2 text-gray-400 hover:text-red-600">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Messages Area -->
+                    <div id="messagesArea" class="flex-1 p-4 overflow-y-auto bg-gray-50">
+                        <div id="noConversationSelected" class="flex items-center justify-center h-full text-gray-500">
+                            <div class="text-center">
+                                <i class="fas fa-comment-dots text-6xl mb-4"></i>
+                                <h3 class="text-xl font-semibold mb-2">Select a conversation</h3>
+                                <p>Choose a conversation from the list to start messaging</p>
+                            </div>
+                        </div>
+                        
+                        <div id="messagesContainer" class="space-y-4 hidden">
+                            <!-- Messages will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Message Input -->
+                    <div id="messageInput" class="p-4 border-t border-gray-200 bg-white hidden">
+                        <div class="flex items-center space-x-2">
+                            <button onclick="attachFile()" class="p-2 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <div class="flex-1 relative">
+                                <textarea id="messageText" placeholder="Type a message..." rows="1"
+                                       class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                                       onkeydown="handleKeyDown(event)"></textarea>
+                                <button onclick="sendMessage()" class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-teal-600 hover:text-teal-700">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, query, where, getDocs, addDoc, orderBy, limit, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzyKtEKbUMt66t9Sfk_onbOcJNic_t5oc",
+            authDomain: "unitrade-d74e9.firebaseapp.com",
+            projectId: "unitrade-d74e9",
+            storageBucket: "unitrade-d74e9.firebasestorage.app",
+            messagingSenderId: "619229942843",
+            appId: "1:619229942843:web:8eced8b46057a24b04f81e",
+            measurementId: "G-6DPM2BCY97"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let currentConversation = null;
+        let conversations = [];
+
+        // Check authentication state
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                if (!user.emailVerified) {
+                    alert('Please verify your email before accessing the platform.');
+                    window.location.href = 'email-verification.html';
+                    return;
+                }
+                currentUser = user;
+                loadConversations();
+            } else {
+                window.location.href = 'seller-login.html';
+            }
+        });
+
+        // Load conversations
+        async function loadConversations() {
+            try {
+                console.log('Loading conversations for seller:', currentUser.uid);
+                
+                // Load conversations from Firebase
+                conversations = await getConversationsFromFirebase();
+                
+                console.log('Loaded conversations from Firebase for seller:', conversations);
+                displayConversations();
+                
+            } catch (error) {
+                console.error('Error loading conversations:', error);
+                conversations = [];
+                displayConversations();
+            }
+        }
+
+        function displayConversations() {
+            const container = document.getElementById('conversationsList');
+            
+            if (conversations.length === 0) {
+                container.innerHTML = `
+                    <div class="p-4 text-center text-gray-500">
+                        <i class="fas fa-comments text-4xl mb-2"></i>
+                        <p>No conversations yet</p>
+                        <p class="text-sm">Buyers will contact you about your items</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = conversations.map(conv => {
+                const lastMessageTime = conv.lastMessageTime?.toDate ? conv.lastMessageTime.toDate() : new Date(conv.lastMessageTime);
+                
+                return `
+                    <div class="conversation-item p-4 border-b border-gray-200 cursor-pointer" onclick="selectConversation('${conv.id}')">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-gray-500"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-semibold text-gray-900 truncate">${conv.buyerName}</h4>
+                                    <span class="text-xs text-gray-500">${formatTime(lastMessageTime)}</span>
+                                </div>
+                                <p class="text-sm text-gray-600 truncate">${conv.lastMessage || 'No messages yet'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectConversation(conversationId) {
+            console.log('selectConversation called with:', conversationId);
+            console.log('Available conversations:', conversations);
+            
+            currentConversation = conversations.find(conv => conv.id === conversationId);
+            
+            if (!currentConversation) {
+                console.error('Conversation not found for:', conversationId);
+                return;
+            }
+            
+            console.log('Selecting conversation:', currentConversation);
+            
+            // Update UI
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and highlight the selected conversation item
+            const conversationItems = document.querySelectorAll('.conversation-item');
+            conversationItems.forEach(item => {
+                if (item.onclick && item.onclick.toString().includes(currentConversation.id)) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Show chat area
+            document.getElementById('noConversationSelected').classList.add('hidden');
+            document.getElementById('chatHeader').classList.remove('hidden');
+            document.getElementById('messagesContainer').classList.remove('hidden');
+            document.getElementById('messageInput').classList.remove('hidden');
+            
+            // Update chat header
+            document.getElementById('chatUserName').textContent = currentConversation.buyerName;
+            
+            // Load messages for this conversation
+            loadMessages(conversationId);
+        }
+        
+        // Make selectConversation globally accessible
+        window.selectConversation = selectConversation;
+        
+        // Firebase message functions (same as buyer messages)
+        async function saveMessageToFirebase(message) {
+            try {
+                const docRef = await addDoc(collection(db, 'messages'), {
+                    ...message,
+                    timestamp: serverTimestamp()
+                });
+                console.log('Message saved to Firebase with ID:', docRef.id);
+                return docRef.id;
+            } catch (error) {
+                console.error('Error saving message to Firebase:', error);
+                throw error;
+            }
+        }
+        
+        async function getMessagesFromFirebase(conversationId) {
+            try {
+                const q = query(
+                    collection(db, 'messages'),
+                    where('conversationId', '==', conversationId),
+                    orderBy('timestamp', 'asc')
+                );
+                const querySnapshot = await getDocs(q);
+                const messages = [];
+                querySnapshot.forEach((doc) => {
+                    messages.push({
+                        id: doc.id,
+                        ...doc.data(),
+                        timestamp: doc.data().timestamp?.toDate() || new Date()
+                    });
+                });
+                return messages;
+            } catch (error) {
+                console.error('Error loading messages from Firebase:', error);
+                return [];
+            }
+        }
+        
+        async function getConversationsFromFirebase() {
+            try {
+                const q = query(
+                    collection(db, 'conversations'),
+                    where('participants', 'array-contains', currentUser.uid),
+                    orderBy('updatedAt', 'desc')
+                );
+                const querySnapshot = await getDocs(q);
+                const conversations = [];
+                querySnapshot.forEach((doc) => {
+                    conversations.push({
+                        id: doc.id,
+                        ...doc.data(),
+                        lastMessageTime: doc.data().lastMessageTime?.toDate() || new Date()
+                    });
+                });
+                return conversations;
+            } catch (error) {
+                console.error('Error loading conversations from Firebase:', error);
+                return [];
+            }
+        }
+        
+        // Test function to add messages from both sides
+        function addTestMessages() {
+            if (!currentConversation) {
+                console.log('No conversation selected');
+                return;
+            }
+            
+            const testMessages = [
+                {
+                    id: Date.now() + 1,
+                    conversationId: currentConversation.id,
+                    senderId: currentConversation.buyerId,
+                    senderName: currentConversation.buyerName,
+                    recipientId: currentUser.uid,
+                    recipientName: currentUser.displayName || 'Seller',
+                    text: "Hello! I'm interested in this item.",
+                    timestamp: new Date(Date.now() - 300000), // 5 minutes ago
+                    read: false,
+                    productTitle: currentConversation.productTitle
+                },
+                {
+                    id: Date.now() + 2,
+                    conversationId: currentConversation.id,
+                    senderId: currentUser.uid,
+                    senderName: currentUser.displayName || 'Seller',
+                    recipientId: currentConversation.buyerId,
+                    recipientName: currentConversation.buyerName,
+                    text: "Hi! Thanks for your interest. What would you like to know?",
+                    timestamp: new Date(Date.now() - 240000), // 4 minutes ago
+                    read: false,
+                    productTitle: currentConversation.productTitle
+                },
+                {
+                    id: Date.now() + 3,
+                    conversationId: currentConversation.id,
+                    senderId: currentConversation.buyerId,
+                    senderName: currentConversation.buyerName,
+                    recipientId: currentUser.uid,
+                    recipientName: currentUser.displayName || 'Seller',
+                    text: "Is it still available?",
+                    timestamp: new Date(Date.now() - 180000), // 3 minutes ago
+                    read: false,
+                    productTitle: currentConversation.productTitle
+                },
+                {
+                    id: Date.now() + 4,
+                    conversationId: currentConversation.id,
+                    senderId: currentUser.uid,
+                    senderName: currentUser.displayName || 'Seller',
+                    recipientId: currentConversation.buyerId,
+                    recipientName: currentConversation.buyerName,
+                    text: "Yes, it's still available! When would you like to meet?",
+                    timestamp: new Date(Date.now() - 120000), // 2 minutes ago
+                    read: false,
+                    productTitle: currentConversation.productTitle
+                }
+            ];
+            
+            // Save test messages to shared storage
+            testMessages.forEach(message => saveSharedMessage(message));
+            
+            // Reload messages
+            loadMessages(currentConversation.id);
+            
+            console.log('Test messages added to shared storage from seller');
+        }
+        
+        // Make test function globally accessible
+        window.addTestMessages = addTestMessages;
+
+        function loadMessages(conversationId) {
+            try {
+                console.log('Loading messages for conversation:', conversationId);
+                
+                // Load messages from shared storage
+                const conversationMessages = getMessagesForConversation(conversationId);
+                
+                console.log('Loaded messages from shared storage for seller:', conversationMessages);
+                displayMessages(conversationMessages);
+                
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                displayMessages([]);
+            }
+        }
+
+        function displayMessages(messages) {
+            const container = document.getElementById('messagesContainer');
+            
+            if (messages.length === 0) {
+                container.innerHTML = `
+                    <div class="flex-1 flex items-center justify-center">
+                        <div class="text-center text-gray-500">
+                            <i class="fas fa-comments text-4xl mb-4"></i>
+                            <p>No messages yet</p>
+                            <p class="text-sm">Start a conversation!</p>
+                            <button onclick="addTestMessages()" class="mt-4 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600">
+                                Add Test Messages
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = messages.map(message => {
+                const isOwn = message.senderId === currentUser.uid;
+                const messageTime = message.timestamp?.toDate ? message.timestamp.toDate() : new Date(message.timestamp);
+                
+                return `
+                    <div class="flex ${isOwn ? 'justify-end' : 'justify-start'} mb-4">
+                        <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${isOwn ? 'bg-teal-500 text-white' : 'bg-gray-200 text-gray-800'}">
+                            <p class="text-sm">${message.text}</p>
+                            <p class="text-xs mt-1 ${isOwn ? 'text-teal-100' : 'text-gray-500'}">${formatTime(messageTime)}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendMessage() {
+            const messageText = document.getElementById('messageText');
+            const text = messageText.value.trim();
+            
+            if (!text || !currentConversation) return;
+            
+            try {
+                console.log('Sending message from seller:', text);
+                
+                // Create message data
+                const messageData = {
+                    id: Date.now(),
+                    conversationId: currentConversation.id,
+                    senderId: currentUser.uid,
+                    senderName: currentUser.displayName || 'Seller',
+                    recipientId: currentConversation.buyerId,
+                    recipientName: currentConversation.buyerName,
+                    text: text,
+                    timestamp: new Date(),
+                    read: false,
+                    productTitle: currentConversation.productTitle
+                };
+                
+                // Save to shared storage
+                saveSharedMessage(messageData);
+                
+                // Add message to UI
+                const messageContainer = document.getElementById('messagesContainer');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'flex justify-end mb-4';
+                messageDiv.innerHTML = `
+                    <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg bg-teal-500 text-white">
+                        <p class="text-sm">${text}</p>
+                        <p class="text-xs mt-1 text-teal-100">${formatTime(new Date())}</p>
+                    </div>
+                `;
+                messageContainer.appendChild(messageDiv);
+                
+                // Clear input
+                messageText.value = '';
+                
+                // Scroll to bottom
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+                
+                console.log('Message sent successfully from seller');
+                
+                // Refresh conversations to show updated last message
+                loadConversations();
+                
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Error sending message. Please try again.');
+            }
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'Just now';
+            
+            const now = new Date();
+            const messageTime = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const diff = now - messageTime;
+            
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+            return messageTime.toLocaleDateString();
+        }
+
+        function attachFile() {
+            // In a real app, you'd handle file uploads
+            alert('File attachment feature coming soon!');
+        }
+
+
+        function blockUser() {
+            if (confirm('Are you sure you want to block this user?')) {
+                alert('User blocked successfully');
+            }
+        }
+
+        // Search conversations
+        document.getElementById('searchConversations').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const conversationItems = document.querySelectorAll('.conversation-item');
+            
+            conversationItems.forEach(item => {
+                const userName = item.querySelector('h4').textContent.toLowerCase();
+                const lastMessage = item.querySelector('p').textContent.toLowerCase();
+                
+                if (userName.includes(searchTerm) || lastMessage.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Handle key down for textarea
+        window.handleKeyDown = function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // Auto-resize textarea
+        document.getElementById('messageText').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+
+        // Logout function
+        window.logout = async function() {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    await signOut(auth);
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('Error signing out:', error);
+                    alert('Error signing out. Please try again.');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

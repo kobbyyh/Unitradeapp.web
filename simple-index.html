@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unitrade - University Trading Platform</title>
+    <link rel="icon" type="image/png" href="./images/app_logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(0, 77, 64, 0.1) 0%, rgba(20, 184, 166, 0.2) 100%);
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <img src="./images/app_logo.png" alt="Unitrade" class="h-12 w-12 mr-4">
+                    <h1 class="text-3xl font-bold text-teal-800">Unitrade</h1>
+                </div>
+                <div class="text-sm text-gray-600">
+                    <i class="fas fa-mobile-alt mr-1"></i>
+                    Download our mobile app
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-bg text-white py-20">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <h1 class="text-5xl font-bold mb-6">University Trading Platform</h1>
+            <p class="text-xl mb-8 text-teal-100">Buy and sell items within your university community</p>
+            <div class="flex justify-center space-x-4">
+                <a href="simple-order-page.html" class="bg-white text-teal-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg">
+                    <i class="fas fa-shopping-cart mr-2"></i>
+                    Place an Order
+                </a>
+                <button class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white hover:text-teal-600 transition-colors">
+                    <i class="fas fa-download mr-2"></i>
+                    Download App
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20">
+        <div class="max-w-6xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">How It Works</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="bg-teal-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-mobile-alt text-2xl text-teal-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Download App</h3>
+                    <p class="text-gray-600">Get the Unitrade mobile app to access all features including selling, notifications, and messaging.</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-teal-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shopping-cart text-2xl text-teal-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Place Orders</h3>
+                    <p class="text-gray-600">Use this website to quickly place orders for items you want to buy from other students.</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-teal-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-handshake text-2xl text-teal-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Connect & Trade</h3>
+                    <p class="text-gray-600">Meet up with other students to complete your trades safely within the university.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-white py-20">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">Ready to Start Trading?</h2>
+            <p class="text-xl text-gray-600 mb-8">Join thousands of students already using Unitrade to buy and sell items.</p>
+            <div class="flex justify-center space-x-4">
+                <a href="simple-order-page.html" class="bg-teal-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-teal-700 transition-colors shadow-lg">
+                    <i class="fas fa-shopping-cart mr-2"></i>
+                    Place Your First Order
+                </a>
+                <button class="bg-gray-800 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-900 transition-colors">
+                    <i class="fab fa-apple mr-2"></i>
+                    Get iOS App
+                </button>
+                <button class="bg-green-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors">
+                    <i class="fab fa-google-play mr-2"></i>
+                    Get Android App
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="./images/app_logo.png" alt="Unitrade" class="h-8 w-8 mr-2">
+                        <span class="text-xl font-bold">Unitrade</span>
+                    </div>
+                    <p class="text-gray-400">University Trading Platform connecting students for safe and easy trading.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="simple-order-page.html" class="hover:text-white transition-colors">Place Order</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Download App</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Support</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Safety Guidelines</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr class="border-gray-700 my-8">
+            <div class="text-center text-gray-400">
+                <p>&copy; 2025 Unitrade. All rights reserved.</p>
+                <p class="text-sm mt-2">University Trading Platform</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
