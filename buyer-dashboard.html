@@ -197,6 +197,7 @@
             try {
                 console.log('🔄 Loading products from Firestore...');
                 console.log('Database reference:', db);
+                console.log('Firebase config:', window.FIREBASE_CONFIG);
                 
                 // Load all items first without filters to see what's in the database
                 const productsRef = collection(db, 'items');
@@ -257,13 +258,19 @@
                 
                 console.log('Products loaded successfully');
             } catch (error) {
-                console.error('Error loading products:', error);
+                console.error('❌ Error loading products:', error);
+                console.error('❌ Error details:', {
+                    message: error.message,
+                    code: error.code,
+                    stack: error.stack
+                });
                 const productsContainer = document.getElementById('productsContainer');
                 productsContainer.innerHTML = `
                     <div class="col-span-full text-center py-12">
                         <i class="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
                         <h3 class="text-xl font-semibold text-gray-600 mb-2">Error loading products</h3>
                         <p class="text-gray-500">Error: ${error.message}</p>
+                        <p class="text-gray-400 text-sm mt-2">Check console for details</p>
                     </div>
                 `;
             }
