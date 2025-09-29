@@ -156,8 +156,39 @@
             try {
                 console.log('🚀 Initializing app...');
                 
-                // Initialize Firebase
-                const firebaseInit = await window.initializeFirebase(window.FIREBASE_CONFIG);
+                // Initialize Firebase with fallback
+                const firebaseConfig = window.FIREBASE_CONFIG || {
+                    apiKey: "AIzaSyBzyKtEKbUMt66t9Sfk_onbOcJNic_t5oc",
+                    authDomain: "unitrade-d74e9.firebaseapp.com",
+                    projectId: "unitrade-d74e9",
+                    storageBucket: "unitrade-d74e9.appspot.com",
+                    messagingSenderId: "619229942843",
+                    appId: "1:619229942843:web:8eced8b46057a24b04f81e",
+                    measurementId: "G-6DPM2BCY97"
+                };
+                
+                let firebaseInit;
+                if (window.initializeFirebase) {
+                    firebaseInit = await window.initializeFirebase(firebaseConfig);
+                } else {
+                    // Fallback to direct initialization
+                    const { initializeApp, getApps, getApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+                    const { getAuth } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+                    const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    
+                    let app;
+                    if (!getApps().length) {
+                        app = initializeApp(firebaseConfig);
+                    } else {
+                        app = getApp();
+                    }
+                    firebaseInit = {
+                        app: app,
+                        auth: getAuth(app),
+                        db: getFirestore(app)
+                    };
+                }
+                
                 auth = firebaseInit.auth;
                 db = firebaseInit.db;
                 
