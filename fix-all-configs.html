@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix All Configurations</title>
+</head>
+<body>
+    <h1>Configuration Fix Script</h1>
+    <p>This page will help you update all remaining HTML files.</p>
+    
+    <script>
+        // List of files that still need updating
+        const filesToUpdate = [
+            'seller-notifications-dashboard.html',
+            'seller-post-item.html',
+            'buyer-orders.html',
+            'seller-messages.html',
+            'seller-profile-settings.html',
+            'messages.html',
+            'profile-settings.html',
+            'email-verification.html',
+            'seller-signup.html',
+            'buyer-signup.html',
+            'buyer-login.html',
+            'index.html'
+        ];
+
+        const secureConfigScript = `    <!-- Load secure configuration first -->
+    <script src="js/secure-config.js"></script>
+    `;
+
+        const firebaseConfigTemplate = `        // Firebase configuration - Load from secure config
+        const firebaseConfig = window.SECURE_CONFIG?.firebase || {
+            apiKey: "YOUR_FIREBASE_API_KEY_HERE",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id",
+            measurementId: "your-measurement-id"
+        };`;
+
+        console.log('Files that need manual updating:');
+        filesToUpdate.forEach(file => {
+            console.log(`- ${file}`);
+        });
+        
+        console.log('\nInstructions:');
+        console.log('1. Open each file');
+        console.log('2. Add the secure config script before Firebase SDK');
+        console.log('3. Replace the Firebase config with the template');
+        console.log('4. Save the file');
+        
+        alert('Check the console for the list of files that need updating!');
+    </script>
+</body>
+</html>

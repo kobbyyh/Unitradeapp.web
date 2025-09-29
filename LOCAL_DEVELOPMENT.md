@@ -104,3 +104,4 @@ If you encounter issues:
 2. Verify the mock API is loading (look for "🔧 Using Mock API" message)
 3. Try refreshing the page
 4. Check that all script files are loading correctly
+

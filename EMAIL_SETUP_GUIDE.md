@@ -93,3 +93,4 @@ Once you've set up EmailJS, the system will work automatically:
 - No additional configuration needed
 
 The system is now much simpler and more effective! 🚀
+

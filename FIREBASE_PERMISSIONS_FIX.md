@@ -106,3 +106,4 @@ If you still get permission errors:
 - ✅ No permission errors in console
 
 The fix should resolve the cancellation issue completely! 🎉
+

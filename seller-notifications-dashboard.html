@@ -6,7 +6,7 @@
     <title>Seller Notifications - Unitrade</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="js/firebase-notification-service.js"></script>
+    <script src="js/unified-notification-service.js"></script>
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -29,6 +29,7 @@
 
         let currentSellerId = null;
         let notifications = [];
+
 
         // Check authentication state
         onAuthStateChanged(auth, (user) => {
@@ -56,6 +57,9 @@
                     <h1 class="text-xl font-semibold text-gray-900">Seller Notifications</h1>
                 </div>
                 <div class="flex items-center space-x-4">
+                    <button onclick="refreshNotifications()" class="text-sm text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-sync-alt mr-1"></i>Refresh
+                    </button>
                     <span id="notificationCount" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
                     <button onclick="markAllAsRead()" class="text-sm text-teal-600 hover:text-teal-800">Mark All Read</button>
                     <a href="seller-dashboard.html" class="text-sm text-gray-600 hover:text-gray-800">Back to Dashboard</a>
@@ -120,11 +124,54 @@
     <script>
         // Functions are now called from Firebase Auth state change
 
+        // Refresh notifications
+        window.refreshNotifications = function() {
+            if (currentSellerId) {
+                loadNotifications(currentSellerId);
+            }
+        };
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (currentSellerId) {
+                console.log('Auto-refreshing notifications...');
+                loadNotifications(currentSellerId);
+            }
+        }, 30000);
+
         // Load seller notifications
         async function loadNotifications(sellerId) {
             try {
                 console.log('Loading notifications for seller:', sellerId);
-                notifications = await firebaseNotificationService.getSellerNotifications(sellerId);
+                
+                // First try the unified service
+                notifications = await unifiedNotificationService.getSellerNotifications(sellerId);
+                console.log('Notifications from unified service:', notifications);
+                
+                // If no notifications, try direct Firebase query for debugging
+                if (notifications.length === 0) {
+                    console.log('No notifications from unified service, trying direct query...');
+                    const { collection, query, where, orderBy, limit, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    
+                    const notificationsSnapshot = await getDocs(
+                        query(
+                            collection(db, 'seller_notifications'),
+                            where('sellerId', '==', sellerId),
+                            orderBy('createdAt', 'desc'),
+                            limit(50)
+                        )
+                    );
+
+                    notifications = [];
+                    notificationsSnapshot.forEach((doc) => {
+                        notifications.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    console.log('Notifications from direct query:', notifications);
+                }
+                
                 displayNotifications();
                 updateStats();
             } catch (error) {
@@ -133,6 +180,7 @@
                     <div class="p-6 text-center text-red-500">
                         <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
                         <p>Error loading notifications: ${error.message}</p>
+                        <p class="text-sm mt-2">Check console for more details</p>
                     </div>
                 `;
             }
@@ -217,7 +265,7 @@
         // Mark notification as read
         async function markAsRead(notificationId) {
             try {
-                await firebaseNotificationService.markNotificationAsRead(notificationId);
+                await unifiedNotificationService.markNotificationAsRead(notificationId);
                 
                 // Reload notifications to get updated data
                 if (window.currentSellerId) {
@@ -235,7 +283,7 @@
                 const unreadNotifications = notifications.filter(n => !n.read);
                 
                 for (const notification of unreadNotifications) {
-                    await firebaseNotificationService.markNotificationAsRead(notification.id);
+                    await unifiedNotificationService.markNotificationAsRead(notification.id);
                 }
                 
                 // Reload notifications to get updated data

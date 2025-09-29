@@ -93,3 +93,4 @@ Please provide these values from your Firebase Console:
 
 Once you provide the missing Firebase configuration values, I'll update all the files and the email verification will work properly!
 
+

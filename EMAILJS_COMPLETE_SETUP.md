@@ -214,3 +214,4 @@ After setup:
 - Free tier: 200 emails/month (perfect for testing)
 
 Once configured, sellers will receive **real emails** in their inboxes when orders are placed! 🚀
+

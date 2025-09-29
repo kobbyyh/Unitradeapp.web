@@ -164,3 +164,4 @@ After setup:
 - Free tier: 30,000 notifications/month
 
 Once configured, sellers will receive **instant push notifications** when their items are ordered! 🚀
+

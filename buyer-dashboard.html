@@ -8,27 +8,40 @@
     <link rel="shortcut icon" type="image/png" href="./images/app_logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Load secure configuration first -->
+    <script src="js/secure-config.js"></script>
+    
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, collection, query, where, getDocs, orderBy, limit, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBzyKtEKbUMt66t9Sfk_onbOcJNic_t5oc",
-            authDomain: "unitrade-d74e9.firebaseapp.com",
-            projectId: "unitrade-d74e9",
-            storageBucket: "unitrade-d74e9.firebasestorage.app",
-            messagingSenderId: "619229942843",
-            appId: "1:619229942843:web:8eced8b46057a24b04f81e",
-            measurementId: "G-6DPM2BCY97"
+        // Firebase configuration - Load from secure config
+        const firebaseConfig = window.SECURE_CONFIG?.firebase || {
+            apiKey: "YOUR_FIREBASE_API_KEY_HERE",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id",
+            measurementId: "your-measurement-id"
         };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
+        // Initialize Firebase (check if already initialized)
+        let app;
+        try {
+            // Try to get existing app first
+            const { getApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+            app = getApp();
+        } catch (error) {
+            // No existing app, create new one
+            app = initializeApp(firebaseConfig);
+        }
+        
         const auth = getAuth(app);
         const db = getFirestore(app);
+
 
         // Check authentication state
         onAuthStateChanged(auth, async (user) => {
@@ -44,54 +57,12 @@
                 
                 await loadUserData(user);
                 loadProducts();
-                
-                // Add a test button for debugging
-                addTestButton();
             } else {
                 console.log('User is signed out');
                 window.location.href = 'buyer-login.html';
             }
         });
 
-        // Add test button for debugging
-        function addTestButton() {
-            const testButton = document.createElement('button');
-            testButton.textContent = 'Test: Add Sample Item';
-            testButton.className = 'bg-red-500 text-white px-4 py-2 rounded mb-4';
-            testButton.onclick = addTestItem;
-            document.querySelector('.mb-8').appendChild(testButton);
-        }
-
-        // Add test item function
-        async function addTestItem() {
-            try {
-                const testItem = {
-                    title: 'Test Item',
-                    category: 'Gadgets & Electronics',
-                    price: 100,
-                    description: 'This is a test item',
-                    location: 'University of Ghana',
-                    contactInfo: '+233 24 123 4567',
-                    sellerId: 'test-seller-id',
-                    sellerName: 'Test Seller',
-                    sellerEmail: 'test@example.com',
-                    isAvailable: true,
-                    isSold: false,
-                    views: 0,
-                    imageUrls: ['test-image.jpg'],
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                };
-                
-                const docRef = await addDoc(collection(db, 'items'), testItem);
-                console.log('Test item added with ID:', docRef.id);
-                alert('Test item added! Refreshing...');
-                loadProducts();
-            } catch (error) {
-                console.error('Error adding test item:', error);
-                alert('Error adding test item: ' + error.message);
-            }
-        }
 
         // Load user data
         async function loadUserData(user) {
@@ -199,23 +170,22 @@
             card.className = 'bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300 cursor-pointer';
             card.onclick = () => window.location.href = `product-details.html?id=${productId}`;
             
-            // Check if we have real images or just placeholders
+            // Check if we have real images
             let imageHtml = '';
             if (product.imageUrls && product.imageUrls.length > 0) {
-                const hasRealImages = product.imageUrls.some(url => 
-                    !url.includes('placeholder_image') && 
-                    (url.startsWith('http') || url.startsWith('data:') || url.startsWith('blob:'))
+                // Check for any valid image (base64, http, or blob)
+                const hasValidImages = product.imageUrls.some(url => 
+                    url.startsWith('data:') || url.startsWith('http') || url.startsWith('blob:')
                 );
                 
-                if (hasRealImages) {
-                    // Use first real image
-                    const firstRealImage = product.imageUrls.find(url => 
-                        !url.includes('placeholder_image') && 
-                        (url.startsWith('http') || url.startsWith('data:') || url.startsWith('blob:'))
+                if (hasValidImages) {
+                    // Use first valid image
+                    const firstValidImage = product.imageUrls.find(url => 
+                        url.startsWith('data:') || url.startsWith('http') || url.startsWith('blob:')
                     );
-                    imageHtml = `<img src="${firstRealImage}" alt="${product.title || product.name}" class="w-full h-full object-cover rounded-lg">`;
+                    imageHtml = `<img src="${firstValidImage}" alt="${product.title || product.name}" class="w-full h-full object-cover rounded-lg">`;
                 } else {
-                    // All images are placeholders, show icon
+                    // No valid images, show icon
                     imageHtml = `<i class="fas fa-image text-4xl text-gray-400"></i>`;
                 }
             } else {
@@ -237,6 +207,18 @@
             return card;
         }
 
+
+        // Mobile menu toggle function
+        window.toggleMobileMenu = function() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                mobileMenu.style.display = 'block';
+            } else {
+                mobileMenu.classList.add('hidden');
+                mobileMenu.style.display = 'none';
+            }
+        }
 
         // Logout function
         window.logout = async function() {
@@ -268,16 +250,40 @@
             });
         }
 
-        // Filter by category function
+        // Filter by category function with toggle support
         window.filterByCategory = function(category) {
-            // Remove active class from all category chips
-            document.querySelectorAll('.category-chip').forEach(chip => {
-                chip.classList.remove('active');
+            const clickedChip = event.target.closest('.category-chip');
+            const isActive = clickedChip.classList.contains('active');
+            
+            // Toggle the clicked category chip
+            if (isActive) {
+                // If already active, deactivate it and show all products
+                clickedChip.classList.remove('active');
+                showAllProducts();
+            } else {
+                // Remove active class from all category chips
+                document.querySelectorAll('.category-chip').forEach(chip => {
+                    chip.classList.remove('active');
+                });
+                
+                // Add active class to clicked category chip
+                clickedChip.classList.add('active');
+                
+                // Filter products by category
+                filterProductsByCategory(category);
+            }
+        }
+        
+        // Show all products
+        function showAllProducts() {
+            const productCards = document.querySelectorAll('#productsContainer > div');
+            productCards.forEach(card => {
+                card.style.display = 'block';
             });
-            
-            // Add active class to clicked category chip
-            event.target.closest('.category-chip').classList.add('active');
-            
+        }
+        
+        // Filter products by specific category
+        function filterProductsByCategory(category) {
             const productCards = document.querySelectorAll('#productsContainer > div');
             
             productCards.forEach(card => {
@@ -340,7 +346,9 @@
                     <img src="./images/app_logo.png" alt="Unitrade" class="h-10 w-10 mr-3">
                     <span class="text-2xl font-bold text-teal-800">Unitrade</span>
                 </div>
-                <div class="flex items-center space-x-4">
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-4">
                     <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-home mr-1"></i>Dashboard
                     </a>
@@ -352,6 +360,31 @@
                     </a>
                     <button onclick="logout()" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-700 hover:text-teal-600 p-2 rounded-md transition-colors duration-200 hover:bg-gray-100">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation Menu -->
+            <div id="mobileMenu" class="md:hidden hidden transition-all duration-300 ease-in-out">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white/95 backdrop-blur-md rounded-lg mt-2 shadow-xl border border-gray-200">
+                    <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fas fa-home mr-2"></i>Dashboard
+                    </a>
+                    <a href="buyer-orders.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fas fa-shopping-cart mr-2"></i>My Orders
+                    </a>
+                    <a href="profile-settings.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fas fa-user-cog mr-2"></i>Profile
+                    </a>
+                    <button onclick="logout()" class="text-gray-700 hover:text-teal-600 block w-full text-left px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
                     </button>
                 </div>
             </div>

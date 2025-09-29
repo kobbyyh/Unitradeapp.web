@@ -142,3 +142,4 @@ Once testing is complete, your platform is ready for production use with:
 
 The platform is now fully configured with your Firebase project and ready for real users!
 
+

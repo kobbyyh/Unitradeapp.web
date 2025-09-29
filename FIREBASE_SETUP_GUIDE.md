@@ -228,3 +228,4 @@ The Unitrade Team
 
 Once configured, users will receive real verification emails from Firebase and the complete authentication flow will work properly!
 
+

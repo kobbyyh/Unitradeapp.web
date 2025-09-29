@@ -156,3 +156,4 @@ simpleNotificationService.getSellerNotifications('test_seller_123');
 Your notification system is now fully integrated and working! Sellers will receive notifications when their items are ordered, and they can easily manage them through the beautiful dashboard interface.
 
 **Test it now by placing an order and checking the seller dashboard!** 🚀
+

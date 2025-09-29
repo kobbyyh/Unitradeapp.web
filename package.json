@@ -1,0 +1,27 @@
+{
+  "name": "unitrade-twilio-api",
+  "version": "1.0.0",
+  "description": "Twilio WhatsApp API for Unitrade seller notifications",
+  "main": "api/twilio-whatsapp.js",
+  "scripts": {
+    "start": "node api/twilio-whatsapp.js",
+    "dev": "nodemon api/twilio-whatsapp.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "twilio": "^4.19.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "twilio",
+    "whatsapp",
+    "notifications",
+    "unitrade"
+  ],
+  "author": "Unitrade Team",
+  "license": "MIT"
+}

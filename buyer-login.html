@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
         .gradient-bg {
             background: linear-gradient(135deg, rgba(0, 77, 64, 0.08) 0%, rgba(20, 184, 166, 0.1) 100%);
         }
+
         .glass-effect {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
@@ -19,6 +21,7 @@
         }
     </style>
 </head>
+
 <body class="gradient-bg min-h-screen flex items-center justify-center">
     <div class="w-full max-w-md mx-4">
         <!-- Logo and Title -->
@@ -37,8 +40,8 @@
                         University Email
                     </label>
                     <input type="email" id="email" name="email" required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
-                           placeholder="your.email@university.edu">
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                        placeholder="your.email@university.edu">
                 </div>
 
                 <div>
@@ -47,8 +50,8 @@
                         Password
                     </label>
                     <input type="password" id="password" name="password" required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
-                           placeholder="Enter your password">
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                        placeholder="Enter your password">
                 </div>
 
                 <div class="flex items-center justify-between">
@@ -60,8 +63,8 @@
                     </a>
                 </div>
 
-                <button type="submit" 
-                        class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-6 rounded-xl transition duration-300 shadow-lg hover:shadow-xl">
+                <button type="submit"
+                    class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-6 rounded-xl transition duration-300 shadow-lg hover:shadow-xl">
                     <i class="fas fa-sign-in-alt mr-2"></i>
                     Login
                 </button>
@@ -89,20 +92,23 @@
     </div>
 
     <!-- Firebase SDK -->
+    <!-- Load secure configuration first -->
+    <script src="js/secure-config.js"></script>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-        
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBzyKtEKbUMt66t9Sfk_onbOcJNic_t5oc",
-            authDomain: "unitrade-d74e9.firebaseapp.com",
-            projectId: "unitrade-d74e9",
-            storageBucket: "unitrade-d74e9.firebasestorage.app",
-            messagingSenderId: "619229942843",
-            appId: "1:619229942843:web:8eced8b46057a24b04f81e",
-            measurementId: "G-6DPM2BCY97"
+
+        // Firebase configuration - Load from secure config
+        const firebaseConfig = window.SECURE_CONFIG?.firebase || {
+            apiKey: "YOUR_FIREBASE_API_KEY_HERE",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id",
+            measurementId: "your-measurement-id"
         };
 
         // Initialize Firebase
@@ -124,17 +130,17 @@
                 const usersRef = collection(db, 'users');
                 const q = query(usersRef, where('email', '==', user.email));
                 const querySnapshot = await getDocs(q);
-                
+
                 if (!querySnapshot.empty) {
                     const userDoc = querySnapshot.docs[0].data();
-                    
+
                     // Check if email is verified
                     if (!user.emailVerified) {
                         alert('Please verify your email before accessing the dashboard. Check your inbox for the verification link.');
                         window.location.href = 'email-verification.html';
                         return;
                     }
-                    
+
                     if (userDoc.userType === 'seller') {
                         window.location.href = 'seller-dashboard.html';
                     } else {
@@ -162,35 +168,35 @@
         }
 
         // Handle login form submission
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
+
             // Basic validation
             if (!email || !password) {
                 alert('Please fill in all fields');
                 return;
             }
-            
+
             const button = this.querySelector('button[type="submit"]');
             const originalText = button.innerHTML;
             button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Logging in...';
             button.disabled = true;
-            
+
             try {
                 // Sign in with Firebase
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 console.log('User signed in:', userCredential.user);
-                
+
                 // Check user type and redirect
                 await checkUserType(userCredential.user);
-                
+
             } catch (error) {
                 console.error('Login error:', error);
                 let errorMessage = 'Login failed. Please try again.';
-                
+
                 switch (error.code) {
                     case 'auth/user-not-found':
                         errorMessage = 'No account found with this email address.';
@@ -205,26 +211,29 @@
                         errorMessage = 'Too many failed attempts. Please try again later.';
                         break;
                 }
-                
+
                 alert(errorMessage);
                 button.innerHTML = originalText;
                 button.disabled = false;
             }
         });
-        
+
         // Clear session function
         window.clearSession = async function() {
             if (confirm('This will clear your current session. Are you sure?')) {
                 try {
                     await signOut(auth);
-                    alert('Session cleared! You can now test the login flow.');
-                    location.reload();
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    alert('Session cleared successfully!');
+                    window.location.reload();
                 } catch (error) {
-                    console.error('Error signing out:', error);
+                    console.error('Error clearing session:', error);
                     alert('Error clearing session. Please try again.');
                 }
             }
         }
     </script>
 </body>
+
 </html>
