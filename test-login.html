@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login - Unitrade</title>
+    <script src="js/secure-config.js"></script>
+    <script src="js/firebase-init.js"></script>
+</head>
+<body>
+    <h1>Test Login</h1>
+    <div id="status">Loading...</div>
+    
+    <script type="module">
+        console.log('Testing Firebase configuration...');
+        console.log('SECURE_CONFIG:', window.SECURE_CONFIG);
+        
+        // Firebase configuration - Load from secure config
+        const firebaseConfig = window.SECURE_CONFIG?.firebase || {
+            apiKey: "YOUR_FIREBASE_API_KEY_HERE",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id",
+            measurementId: "your-measurement-id"
+        };
+        
+        console.log('Firebase Config:', firebaseConfig);
+        
+        // Initialize Firebase safely
+        let app, auth, db;
+        try {
+            const firebaseInit = await window.initializeFirebase(firebaseConfig);
+            app = firebaseInit.app;
+            auth = firebaseInit.auth;
+            db = firebaseInit.db;
+            
+            console.log('Firebase initialized successfully!');
+            document.getElementById('status').innerHTML = '✅ Firebase initialized successfully!';
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            document.getElementById('status').innerHTML = '❌ Firebase initialization failed: ' + error.message;
+        }
+    </script>
+</body>
+</html>

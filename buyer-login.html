@@ -84,19 +84,19 @@
                 <i class="fas fa-arrow-left mr-2"></i>
                 Back to Home
             </a>
-            <button onclick="clearSession()" class="text-red-600 hover:text-red-700 text-sm">
+            <!-- <button onclick="clearSession()" class="text-red-600 hover:text-red-700 text-sm">
                 <i class="fas fa-sign-out-alt mr-1"></i>
                 Clear Session & Start Fresh
-            </button>
+            </button> -->
         </div>
     </div>
 
     <!-- Firebase SDK -->
     <!-- Load secure configuration first -->
     <script src="js/secure-config.js"></script>
+    <script src="js/firebase-init.js"></script>
 
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
@@ -111,10 +111,17 @@
             measurementId: "your-measurement-id"
         };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // Initialize Firebase safely
+        let app, auth, db;
+        try {
+            const firebaseInit = await window.initializeFirebase(firebaseConfig);
+            app = firebaseInit.app;
+            auth = firebaseInit.auth;
+            db = firebaseInit.db;
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            alert('Failed to initialize Firebase. Please refresh the page.');
+        }
 
         // Check if user is already logged in
         onAuthStateChanged(auth, (user) => {
@@ -219,7 +226,7 @@
         });
 
         // Clear session function
-        window.clearSession = async function() {
+       /* window.clearSession = async function() {
             if (confirm('This will clear your current session. Are you sure?')) {
                 try {
                     await signOut(auth);
@@ -232,7 +239,7 @@
                     alert('Error clearing session. Please try again.');
                 }
             }
-        }
+        }*/
     </script>
 </body>
 
