@@ -9,7 +9,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="js/unified-notification-service.js"></script>
+    <script src="js/onesignal-email-service.js"></script>
     <script src="js/twilio-whatsapp-service.js"></script>
+    <script src="js/direct-whatsapp-service.js"></script>
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, rgba(0, 77, 64, 0.08) 0%, rgba(20, 184, 166, 0.1) 100%);
@@ -118,6 +120,10 @@
                             <span class="text-sm text-gray-500">Location</span>
                             <p id="productLocation" class="font-medium">University of Ghana</p>
                         </div>
+                        <div>
+                            <span class="text-sm text-gray-500">Views</span>
+                            <p id="productViews" class="font-medium">0</p>
+                        </div>
                     </div>
 
                     <div class="mb-6">
@@ -141,14 +147,14 @@
                     <div class="flex items-center space-x-4">
                         <img id="sellerAvatar" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjQiIGZpbGw9IiNGM0Y0RjYiLz4KPGNpcmNsZSBjeD0iMjQiIGN5PSIxOCIgcj0iOCIgZmlsbD0iIzlDQTNBRiIvPgo8cGF0aCBkPSJNMTIgMzZDMiA0MCAyIDQ0IDI0IDQ0UzQ2IDQwIDM2IDM2QzM2IDMwIDMwIDI0IDI0IDI0UzEyIDMwIDEyIDM2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K" alt="Seller" class="w-12 h-12 rounded-full">
                         <div>
-                            <p id="sellerName" class="font-medium text-gray-900">Seller Name</p>
-                            <p id="sellerUniversity" class="text-sm text-gray-500">University of Ghana</p>
+                            <p id="sellerName" class="font-medium text-gray-900"></p>
+                            <p id="sellerUniversity" class="text-sm text-gray-500"></p>
                         </div>
                     </div>
                     <div class="mt-4 grid grid-cols-2 gap-4">
                         <div>
                             <span class="text-sm text-gray-500">Contact Info</span>
-                            <p id="contactInfo" class="font-medium">+233 24 123 4567</p>
+                            <p id="contactInfo" class="font-medium"></p>
                         </div>
                         <div>
                             <span class="text-sm text-gray-500">Member Since</span>
@@ -199,18 +205,26 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script src="js/firebase-config-public.js"></script>
-    <script src="js/firebase-init.js"></script>
-    
     <script type="module">
-        import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { collection, query, where, getDocs, doc, getDoc, updateDoc, increment, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, increment, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         
-        // Firebase configuration - Load from public config
-        const firebaseConfig = window.FIREBASE_CONFIG;
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzyKtEKbUMt66t9Sfk_onbOcJNic_t5oc",
+            authDomain: "unitrade-d74e9.firebaseapp.com",
+            projectId: "unitrade-d74e9",
+            storageBucket: "unitrade-d74e9.firebasestorage.app",
+            messagingSenderId: "619229942843",
+            appId: "1:619229942843:web:8eced8b46057a24b04f81e",
+            measurementId: "G-6DPM2BCY97"
+        };
 
-        // Initialize Firebase safely
-        const { app, auth, db } = await window.initializeFirebase(firebaseConfig);
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
         let currentUser = null;
         let currentProduct = null;
@@ -264,6 +278,17 @@
                 await loadSellerProfile(); // Ensure seller profile is loaded
                 loadSimilarProducts();
                 
+                // Increment view count (skip if permission denied)
+                try {
+                    console.log('Incrementing view count...');
+                    await updateDoc(doc(db, 'items', productId), {
+                        views: increment(1)
+                    });
+                    console.log('View count incremented');
+                } catch (updateError) {
+                    console.log('Could not update view count (permission denied):', updateError.message);
+                    // Continue without updating view count
+                }
                 
             } catch (error) {
                 console.error('Error loading product:', error);
@@ -281,6 +306,7 @@
             document.getElementById('productCategory').textContent = currentProduct.category;
             document.getElementById('productCondition').textContent = currentProduct.condition || 'Good';
             document.getElementById('productLocation').textContent = currentProduct.location || 'Location not specified';
+            document.getElementById('productViews').textContent = currentProduct.views || 0;
             document.getElementById('productDescription').textContent = currentProduct.description;
 
             // Badges
@@ -496,6 +522,10 @@
         }
 
         window.placeOrder = function() {
+            console.log('placeOrder function called');
+            console.log('Current user:', currentUser);
+            console.log('Current product:', currentProduct);
+            
             if (!currentUser) {
                 alert('Please log in to place an order');
                 return;
@@ -506,6 +536,8 @@
                 return;
             }
             
+            console.log('Showing order modal...');
+            // Show order confirmation modal
             showOrderModal();
         }
         
@@ -513,62 +545,35 @@
             const modal = document.createElement('div');
             modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
             modal.innerHTML = `
-                <div class="bg-white rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl">
-                    <div class="text-center mb-6">
-                        <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-shopping-cart text-teal-600 text-2xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Place Your Order</h3>
-                        <p class="text-gray-600">Complete your purchase and notify the seller</p>
+                <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+                    <h3 class="text-xl font-semibold mb-4">📦 Place Order</h3>
+                    
+                    <div class="mb-4">
+                        <p class="text-gray-600 mb-2">Product: <strong>${currentProduct.title || currentProduct.name}</strong></p>
+                        <p class="text-gray-600 mb-2">Price: <strong>GHS ${currentProduct.price}</strong></p>
                     </div>
                     
-                    <div class="bg-gray-50 rounded-xl p-4 mb-6">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-gray-600">Product</span>
-                            <span class="font-semibold text-gray-900">${currentProduct.title || currentProduct.name}</span>
-                        </div>
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-gray-600">Price</span>
-                            <span class="font-semibold text-teal-600">GHS ${currentProduct.price}</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Seller</span>
-                            <span class="font-semibold text-gray-900">${currentProduct.sellerName || 'Unknown'}</span>
-                        </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                        <input type="number" id="quantity" value="1" min="1" max="10" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
                     </div>
                     
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Quantity</label>
-                        <div class="flex items-center space-x-3">
-                            <button onclick="decreaseQuantity()" class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-300 transition-colors">
-                                <i class="fas fa-minus text-gray-600"></i>
-                            </button>
-                            <input type="number" id="quantity" value="1" min="1" max="10" 
-                                   class="flex-1 text-center px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 font-semibold">
-                            <button onclick="increaseQuantity()" class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-300 transition-colors">
-                                <i class="fas fa-plus text-gray-600"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gradient-to-r from-green-50 to-teal-50 border border-green-200 rounded-xl p-4 mb-6">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
                         <div class="flex items-center">
-                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                <i class="fab fa-whatsapp text-green-600 text-lg"></i>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-green-800 text-sm">Instant Notification</p>
-                                <p class="text-green-700 text-xs">Seller will receive WhatsApp message immediately</p>
-                            </div>
+                            <i class="fab fa-whatsapp text-green-500 text-lg mr-2"></i>
+                            <span class="text-sm text-green-700">
+                                <strong>WhatsApp will open</strong> with order details for the seller
+                            </span>
                         </div>
                     </div>
                     
                     <div class="flex space-x-3">
-                        <button onclick="confirmOrder()" class="flex-1 bg-gradient-to-r from-teal-600 to-teal-700 text-white py-3 px-6 rounded-xl hover:from-teal-700 hover:to-teal-800 transition-all duration-200 font-semibold">
+                        <button onclick="confirmOrder()" class="flex-1 bg-teal-600 text-white py-2 px-4 rounded-lg hover:bg-teal-700">
                             <i class="fas fa-shopping-cart mr-2"></i>
                             Place Order
                         </button>
-                        <button onclick="closeOrderModal()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-semibold">
+                        <button onclick="closeOrderModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400">
                             Cancel
                         </button>
                     </div>
@@ -587,25 +592,22 @@
         // Make functions globally accessible
         window.closeOrderModal = closeOrderModal;
         
-        // Quantity control functions
-        window.increaseQuantity = function() {
-            const quantityInput = document.getElementById('quantity');
-            const currentValue = parseInt(quantityInput.value) || 1;
-            if (currentValue < 10) {
-                quantityInput.value = currentValue + 1;
+        // Test WhatsApp service
+        window.testWhatsApp = function() {
+            console.log('Testing WhatsApp service...');
+            console.log('Direct WhatsApp Service available:', typeof directWhatsAppService);
+            if (typeof directWhatsAppService !== 'undefined') {
+                console.log('✅ Direct WhatsApp Service is loaded');
+                directWhatsAppService.testWhatsApp('0542367268');
+            } else {
+                console.log('❌ Direct WhatsApp Service not loaded');
             }
         };
-        
-        window.decreaseQuantity = function() {
-            const quantityInput = document.getElementById('quantity');
-            const currentValue = parseInt(quantityInput.value) || 1;
-            if (currentValue > 1) {
-                quantityInput.value = currentValue - 1;
-            }
-        };
-        
         
         async function confirmOrder() {
+            console.log('confirmOrder function called');
+            console.log('Current user:', currentUser);
+            console.log('Current product:', currentProduct);
             
             try {
                 if (!currentProduct) {
@@ -667,17 +669,6 @@
                 // Update order data with the generated ID
                 orderData.id = docRef.id;
                 
-                // Send WhatsApp notification to seller
-                const sellerPhone = currentProduct.contactInfo;
-                if (sellerPhone) {
-                    try {
-                        await twilioWhatsAppService.sendOrderNotification(sellerPhone, orderData);
-                        console.log('✅ WhatsApp notification sent to seller');
-                    } catch (whatsappError) {
-                        console.error('❌ Error sending WhatsApp notification:', whatsappError);
-                    }
-                }
-                
                     // Send notification to seller
                     try {
                         // Create in-app notification in Firebase
@@ -702,28 +693,17 @@
                                     sellerPhoneField: currentProduct.sellerPhone
                                 });
                                 
-                                // Debug phone number formatting
-                                console.log('📞 Phone number before formatting:', sellerPhone);
-                                console.log('📞 Phone number type:', typeof sellerPhone);
-                                
-                                // Send WhatsApp notification using the working test method
+                                // Send WhatsApp notification using direct service
                                 if (sellerPhone) {
                                     try {
-                                        console.log('📱 Sending WhatsApp notification to seller...', sellerPhone);
+                                        console.log('📱 Sending direct WhatsApp notification to seller...', sellerPhone);
                                         console.log('📱 Order data for WhatsApp:', orderData);
-                                        console.log('📱 Twilio service available:', typeof twilioWhatsAppService);
                                         
-                                        if (typeof twilioWhatsAppService !== 'undefined') {
-                                            console.log('📱 Calling testWhatsApp with phone:', sellerPhone);
-                                            const result = await twilioWhatsAppService.testWhatsApp(sellerPhone);
-                                            console.log('✅ WhatsApp notification result:', result);
-                                        } else {
-                                            console.error('❌ Twilio WhatsApp service not available');
-                                        }
+                                        const whatsappResult = await directWhatsAppService.sendOrderNotification(sellerPhone, orderData);
+                                        console.log('✅ WhatsApp notification result:', whatsappResult);
                                     } catch (whatsappError) {
                                         console.error('❌ Error sending WhatsApp notification:', whatsappError);
                                         console.error('❌ WhatsApp error details:', whatsappError.message);
-                                        console.error('❌ Full error:', whatsappError);
                                         // Don't fail the order if WhatsApp fails
                                     }
                                 } else {
@@ -759,17 +739,7 @@
                 closeOrderModal();
                 
                 // Show success message and redirect to orders
-                const successMessage = `
-🎉 Order Placed Successfully!
-
-📦 Product: ${orderData.productTitle}
-💰 Total: GHS ${orderData.totalPrice}
-📱 Seller notified via WhatsApp
-
-Your order has been placed and the seller will contact you soon!
-                `.trim();
-                
-                alert(successMessage);
+                alert(`🎉 Order placed successfully!\n\n📦 Product: ${orderData.productTitle}\n💰 Total: GHS ${orderData.totalPrice}\n📱 WhatsApp notification opened for seller!\n\nYou can view your orders in "My Orders" section.`);
                 window.location.href = 'buyer-orders.html';
                 
             } catch (error) {
