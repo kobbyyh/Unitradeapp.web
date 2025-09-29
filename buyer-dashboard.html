@@ -19,9 +19,48 @@
                     <img src="./images/app_logo.png" alt="Unitrade" class="h-8 w-8 mr-3">
                     <h1 class="text-xl font-bold text-gray-900">Unitrade</h1>
                 </div>
-                <div class="flex items-center space-x-4">
+                
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="buyer-dashboard.html" class="text-teal-600 font-medium">Dashboard</a>
+                    <a href="buyer-orders.html" class="text-gray-700 hover:text-teal-600">My Orders</a>
+                    <a href="profile-settings.html" class="text-gray-700 hover:text-teal-600">Profile</a>
+                </nav>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-700 hover:text-teal-600 p-2 rounded-md transition-colors duration-200 hover:bg-gray-100">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- User Info -->
+                <div class="hidden md:flex items-center space-x-4">
                     <span id="userName" class="text-gray-700">Loading...</span>
                     <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</button>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation Menu -->
+            <div id="mobileMenu" class="md:hidden hidden transition-all duration-300 ease-in-out">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white/95 backdrop-blur-md rounded-lg mt-2 shadow-xl border border-gray-200">
+                    <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fas fa-home mr-2"></i>Dashboard
+                    </a>
+                    <a href="buyer-orders.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fas fa-shopping-bag mr-2"></i>My Orders
+                    </a>
+                    <a href="profile-settings.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fas fa-user mr-2"></i>Profile
+                    </a>
+                    <div class="border-t border-gray-200 pt-2 mt-2">
+                        <div class="px-3 py-2">
+                            <span id="userNameMobile" class="text-gray-700 text-sm">Loading...</span>
+                        </div>
+                        <button onclick="logout()" class="w-full text-left text-red-600 hover:text-red-700 block px-3 py-2 rounded-md text-base font-medium">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -91,6 +130,23 @@
         let auth, db;
         let allProducts = [];
 
+        // Mobile menu toggle function
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (!mobileMenu) {
+                console.error('Mobile menu element not found');
+                return;
+            }
+            
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                mobileMenu.style.display = 'block';
+            } else {
+                mobileMenu.classList.add('hidden');
+                mobileMenu.style.display = 'none';
+            }
+        }
+
         // Initialize the app
         async function initApp() {
             try {
@@ -109,14 +165,18 @@
                 // Set up auth listener
                 auth.onAuthStateChanged((user) => {
                     if (user) {
-                        document.getElementById('userName').textContent = user.displayName || 'Buyer';
+                        const userName = user.displayName || 'Buyer';
+                        document.getElementById('userName').textContent = userName;
+                        document.getElementById('userNameMobile').textContent = userName;
                     } else {
-                        document.getElementById('userName').innerHTML = `
+                        const guestHtml = `
                             <span class="text-gray-600">Guest User</span>
                             <a href="buyer-login.html" class="ml-2 bg-teal-600 text-white px-3 py-1 rounded text-sm hover:bg-teal-700">
                                 Login to Order
                             </a>
                         `;
+                        document.getElementById('userName').innerHTML = guestHtml;
+                        document.getElementById('userNameMobile').innerHTML = 'Guest User';
                     }
                 });
                 
