@@ -1,5 +1,5 @@
 // Public Firebase Configuration
-// This file is safe to commit to a private repository
+// This file is safe to commit to a public repository
 // Firebase API keys are designed to be public - security comes from Firebase Rules
 
 window.FIREBASE_CONFIG = {
@@ -12,9 +12,5 @@ window.FIREBASE_CONFIG = {
     measurementId: "G-6DPM2BCY97"
 };
 
-// Twilio configuration (keep this private in production)
-window.TWILIO_CONFIG = {
-    accountSid: "ACb030224630e5dd82978f5c6f6ab9a190",
-    authToken: "68e2d7d09d69f2c2c43a0c7e750e4986",
-    whatsappFrom: "whatsapp:+14155238886"
-};
+// Twilio configuration is NOT included here for security
+// Twilio credentials are handled by the backend server only
