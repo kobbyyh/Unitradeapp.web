@@ -120,9 +120,17 @@
                     <p class="text-gray-500">Failed to initialize Firebase: ${error.message}</p>
                 </div>
             `;
-            return;
+            // Don't return here, just set auth and db to null
+            auth = null;
+            db = null;
         }
 
+
+        // Check if Firebase initialized successfully
+        if (!auth || !db) {
+            console.error('Firebase not initialized properly');
+            return;
+        }
 
         // Check authentication state
         onAuthStateChanged(auth, async (user) => {

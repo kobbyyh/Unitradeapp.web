@@ -72,6 +72,14 @@
         } catch (error) {
             console.error('Firebase initialization failed:', error);
             alert('Failed to initialize Firebase. Please refresh the page.');
+            // Don't return here, just set auth and db to null
+            auth = null;
+            db = null;
+        }
+
+        // Check if Firebase initialized successfully
+        if (!auth || !db) {
+            console.error('Firebase not initialized properly');
             return;
         }
 
