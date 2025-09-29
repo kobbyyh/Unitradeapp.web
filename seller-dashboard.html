@@ -13,6 +13,47 @@
     <script src="js/firebase-config-public.js"></script>
     <script src="js/firebase-init.js"></script>
     
+    <!-- Global Functions -->
+    <script>
+        // Mobile menu toggle function
+        window.toggleMobileMenu = function() {
+            console.log('Mobile menu toggle clicked');
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (!mobileMenu) {
+                console.error('Mobile menu element not found');
+                return;
+            }
+            
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                mobileMenu.style.display = 'block';
+                console.log('Mobile menu shown');
+            } else {
+                mobileMenu.classList.add('hidden');
+                mobileMenu.style.display = 'none';
+                console.log('Mobile menu hidden');
+            }
+        }
+
+        // Logout function
+        window.logout = async function() {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    // Get auth from the module
+                    if (window.auth) {
+                        await window.auth.signOut();
+                        window.location.href = 'index.html';
+                    } else {
+                        console.error('Auth not available');
+                    }
+                } catch (error) {
+                    console.error('Error signing out:', error);
+                    alert('Error signing out. Please try again.');
+                }
+            }
+        }
+    </script>
+    
     <script type="module">
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, collection, query, where, getDocs, orderBy, limit, addDoc, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
@@ -257,17 +298,8 @@
             }
         }
 
-        // Mobile menu toggle function
-        window.toggleMobileMenu = function() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenu.classList.contains('hidden')) {
-                mobileMenu.classList.remove('hidden');
-                mobileMenu.style.display = 'block';
-            } else {
-                mobileMenu.classList.add('hidden');
-                mobileMenu.style.display = 'none';
-            }
-        }
+        // Make auth available globally for logout function
+        window.auth = auth;
 
         // Add new product
         window.addNewProduct = function() {
