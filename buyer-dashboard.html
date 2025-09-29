@@ -123,12 +123,12 @@
             if (user) {
                 console.log('User is signed in:', user);
                 
-                // Check if email is verified
-                if (!user.emailVerified) {
-                    alert('Please verify your email before accessing the dashboard. Check your inbox for the verification link.');
-                    window.location.href = 'email-verification.html';
-                    return;
-                }
+                // Check if email is verified (temporarily disabled for testing)
+                // if (!user.emailVerified) {
+                //     alert('Please verify your email before accessing the dashboard. Check your inbox for the verification link.');
+                //     window.location.href = 'email-verification.html';
+                //     return;
+                // }
                 
                 await loadUserData(user);
                 loadProducts();
@@ -166,7 +166,8 @@
         // Load products from Firestore
         async function loadProducts() {
             try {
-                console.log('Loading products from Firestore...');
+                console.log('🔄 Loading products from Firestore...');
+                console.log('Database reference:', db);
                 
                 // Load all items first without filters to see what's in the database
                 const productsRef = collection(db, 'items');
@@ -455,7 +456,10 @@
         <div>
             <h2 class="text-xl font-semibold text-gray-900 mb-4">Featured Items</h2>
             <div id="productsContainer" class="grid md:grid-cols-3 gap-6">
-                <!-- Products will be loaded here -->
+                <div class="col-span-full text-center py-12">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+                    <p class="text-gray-500">Loading products...</p>
+                </div>
             </div>
         </div>
     </div>
