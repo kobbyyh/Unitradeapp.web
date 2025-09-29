@@ -100,37 +100,36 @@
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, collection, query, where, getDocs, orderBy, limit, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         
-        // Firebase configuration - Load from public config
-        const firebaseConfig = window.FIREBASE_CONFIG;
+        // Main initialization function
+        async function initializeApp() {
+            // Firebase configuration - Load from public config
+            const firebaseConfig = window.FIREBASE_CONFIG;
 
-        // Initialize Firebase safely
-        let app, auth, db;
-        try {
-            const firebaseInit = await window.initializeFirebase(firebaseConfig);
-            app = firebaseInit.app;
-            auth = firebaseInit.auth;
-            db = firebaseInit.db;
-            console.log('Firebase initialized successfully');
-        } catch (error) {
-            console.error('Firebase initialization failed:', error);
-            document.getElementById('productsContainer').innerHTML = `
-                <div class="col-span-full text-center py-12">
-                    <i class="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
-                    <h3 class="text-xl font-semibold text-gray-600 mb-2">Firebase Error</h3>
-                    <p class="text-gray-500">Failed to initialize Firebase: ${error.message}</p>
-                </div>
-            `;
-            // Don't return here, just set auth and db to null
-            auth = null;
-            db = null;
-        }
+            // Initialize Firebase safely
+            let app, auth, db;
+            try {
+                const firebaseInit = await window.initializeFirebase(firebaseConfig);
+                app = firebaseInit.app;
+                auth = firebaseInit.auth;
+                db = firebaseInit.db;
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Firebase initialization failed:', error);
+                document.getElementById('productsContainer').innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">Firebase Error</h3>
+                        <p class="text-gray-500">Failed to initialize Firebase: ${error.message}</p>
+                    </div>
+                `;
+                return;
+            }
 
-
-        // Check if Firebase initialized successfully
-        if (!auth || !db) {
-            console.error('Firebase not initialized properly');
-            return;
-        }
+            // Check if Firebase initialized successfully
+            if (!auth || !db) {
+                console.error('Firebase not initialized properly');
+                return;
+            }
 
         // Check authentication state
         onAuthStateChanged(auth, async (user) => {
@@ -323,6 +322,8 @@
             });
         }
 
+        // Start the application
+        initializeApp();
     </script>
     <style>
         .gradient-bg {
