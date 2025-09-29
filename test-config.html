@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Config Loading</title>
+</head>
+<body>
+    <h1>Test Config Loading</h1>
+    <div id="status">Loading...</div>
+    
+    <script>
+        console.log('Before loading secure-config.js');
+        console.log('SECURE_CONFIG before:', window.SECURE_CONFIG);
+    </script>
+    
+    <script src="js/secure-config.js" onload="console.log('secure-config.js loaded successfully')" onerror="console.error('Failed to load secure-config.js')"></script>
+    
+    <script>
+        console.log('After loading secure-config.js');
+        console.log('SECURE_CONFIG after:', window.SECURE_CONFIG);
+        
+        if (window.SECURE_CONFIG && window.SECURE_CONFIG.firebase) {
+            document.getElementById('status').innerHTML = '✅ Config loaded successfully!<br>API Key: ' + window.SECURE_CONFIG.firebase.apiKey.substring(0, 10) + '...';
+        } else {
+            document.getElementById('status').innerHTML = '❌ Config not loaded properly';
+        }
+    </script>
+</body>
+</html>
