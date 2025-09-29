@@ -5,6 +5,11 @@ class TwilioWhatsAppService {
     constructor() {
         this.apiBaseUrl = 'http://localhost:3001/api'; // Change this to your deployed backend URL
         this.isInitialized = true;
+        
+        // Load Twilio config from public config if available
+        if (window.TWILIO_CONFIG) {
+            this.config = window.TWILIO_CONFIG;
+        }
     }
 
     // Send WhatsApp notification to seller

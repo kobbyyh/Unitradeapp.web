@@ -92,22 +92,15 @@
     </div>
 
     <!-- Firebase SDK -->
+    <script src="js/firebase-config-public.js"></script>
     <script src="js/firebase-init.js"></script>
     
     <script type="module">
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-        // Firebase configuration - Direct configuration for GitHub Pages
-        const firebaseConfig = {
-            apiKey: "AIzaSyBzyKtEKbUMt66t9Sfk_onbOcJNic_t5oc",
-            authDomain: "unitrade-d74e9.firebaseapp.com",
-            projectId: "unitrade-d74e9",
-            storageBucket: "unitrade-d74e9.appspot.com",
-            messagingSenderId: "619229942843",
-            appId: "1:619229942843:web:8eced8b46057a24b04f81e",
-            measurementId: "G-6DPM2BCY97"
-        };
+        // Firebase configuration - Load from public config
+        const firebaseConfig = window.FIREBASE_CONFIG;
 
         // Initialize Firebase safely
         let app, auth, db;
