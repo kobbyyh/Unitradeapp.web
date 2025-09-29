@@ -92,16 +92,14 @@
     </div>
 
     <!-- Firebase SDK -->
-    <!-- Load secure configuration first -->
-    <script src="js/secure-config.js"></script>
     <script src="js/firebase-init.js"></script>
-
+    
     <script type="module">
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-        // Firebase configuration - Load from secure config
-        const firebaseConfig = window.SECURE_CONFIG?.firebase || {
+        // Firebase configuration - Direct configuration for GitHub Pages
+        const firebaseConfig = {
             apiKey: "AIzaSyBzyKtEKbUMt66t9Sfk_onbOcJNic_t5oc",
             authDomain: "unitrade-d74e9.firebaseapp.com",
             projectId: "unitrade-d74e9",
