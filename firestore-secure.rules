@@ -1,0 +1,204 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // HELPER FUNCTIONS
+    // =========================================================================
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user owns the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if user is seller of an item
+    function isItemSeller(itemId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/items/$(itemId)) &&
+             get(/databases/$(database)/documents/items/$(itemId)).data.sellerId == request.auth.uid;
+    }
+    
+    // Validate user data structure
+    function isValidUserData() {
+      return request.resource.data.keys().hasAll(['email', 'fullName']) &&
+             request.resource.data.email is string &&
+             request.resource.data.fullName is string;
+    }
+    
+    // Validate item data structure
+    function isValidItemData() {
+      return request.resource.data.keys().hasAll(['title', 'category', 'price', 'sellerId']) &&
+             request.resource.data.title is string &&
+             request.resource.data.category is string &&
+             request.resource.data.price is number &&
+             request.resource.data.sellerId is string;
+    }
+
+    // =========================================================================
+    // USER RULES (SECURED)
+    // =========================================================================
+    match /users/{userId} {
+      // Allow users to read their own data + basic public info for other users
+      allow read: if isAuthenticated() && (
+        isOwner(userId) || 
+        // Allow reading basic info for notifications/orders
+        (resource.data.keys().hasOnly(['email', 'fullName', 'university', 'phone']))
+      );
+      
+      // Allow users to write only their own data with validation
+      allow write: if isOwner(userId) && isValidUserData();
+
+      // User subcollections
+      match /transactions/{transactionId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      match /completedOrders/{orderId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /notifications/{notificationId} {
+        // Allow users to read their own notifications
+        allow read: if isOwner(userId);
+
+        // Allow creating order notifications (for the notification system)
+        allow create: if isAuthenticated() && (
+          (request.resource.data.type == 'order' && 
+           request.resource.data.keys().hasAll(['type', 'productTitle', 'buyerName'])) ||
+          (request.resource.data.type == 'item_request' && 
+           request.resource.data.buyerId == request.auth.uid)
+        );
+
+        // Allow users to mark their own notifications as read
+        allow update: if isOwner(userId) &&
+          request.resource.data.keys().hasOnly(['read']) &&
+          request.resource.data.read == true;
+      }
+    }
+
+    // =========================================================================
+    // ORDERS SUBCOLLECTION (SECURED)
+    // =========================================================================
+    match /users/{userId}/orders/{orderId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // =========================================================================
+    // CHAT RULES (SECURED)
+    // =========================================================================
+    match /chats/{chatRoomId} {
+      // Allow read if user is a participant
+      allow read: if isAuthenticated() && (
+        !resource.exists || 
+        (resource.data.participants is list && 
+         resource.data.participants.hasAny([request.auth.uid]))
+      );
+      
+      // Allow update/delete if user is a participant
+      allow update, delete: if isAuthenticated() && (
+        resource.data.participants is list && 
+        resource.data.participants.hasAny([request.auth.uid])
+      );
+      
+      // Allow create if user is one of the participants
+      allow create: if isAuthenticated() &&
+        request.resource.data.participants is list &&
+        request.resource.data.participants.size() == 2 &&
+        request.resource.data.participants.hasAny([request.auth.uid]);
+
+      // Allow list operation for authenticated users
+      allow list: if isAuthenticated();
+
+      match /messages/{messageId} {
+        // Allow read if user is participant in the chat
+        allow read: if isAuthenticated() && (
+          get(/databases/$(database)/documents/chats/$(chatRoomId)).data.participants is list &&
+          get(/databases/$(database)/documents/chats/$(chatRoomId)).data.participants.hasAny([request.auth.uid])
+        );
+
+        // Allow create if user is sender or system
+        allow create: if isAuthenticated() && (
+          request.resource.data.senderId == request.auth.uid ||
+          (request.resource.data.senderId == 'system' && 
+           request.resource.data.type == 'automated_order')
+        );
+
+        // No updates or deletes for messages
+        allow update, delete: if false;
+        
+        // Allow list for participants
+        allow list: if isAuthenticated();
+      }
+    }
+
+    // =========================================================================
+    // ITEMS RULES (SECURED)
+    // =========================================================================
+    match /items/{itemId} {
+      // Allow authenticated users to read items
+      allow read: if isAuthenticated();
+      
+      // Allow creating items with validation
+      allow create: if isAuthenticated() && 
+        isValidItemData() &&
+        request.resource.data.sellerId == request.auth.uid;
+      
+      // Allow updating only own items
+      allow update: if isItemSeller(itemId);
+      
+      // Allow deleting only own items
+      allow delete: if isItemSeller(itemId);
+    }
+
+    // =========================================================================
+    // UNIVERSITIES RULES (READ-ONLY)
+    // =========================================================================
+    match /universities/{universityId} {
+      // Allow read for all authenticated users
+      allow read: if isAuthenticated();
+      // No write access
+      allow write: if false;
+    }
+
+    // =========================================================================
+    // CART RULES (SECURED)
+    // =========================================================================
+    match /carts/{userId} {
+      allow read, create, update, delete: if isOwner(userId);
+
+      match /items/{itemId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // =========================================================================
+    // ORDERS COLLECTION (SECURED)
+    // =========================================================================
+    match /orders/{orderId} {
+      // Allow read if user is buyer or seller
+      allow read: if isAuthenticated() && (
+        resource.data.buyerId == request.auth.uid ||
+        resource.data.sellerId == request.auth.uid
+      );
+      
+      // Allow create if user is the buyer
+      allow create: if isAuthenticated() && 
+        request.resource.data.buyerId == request.auth.uid;
+      
+      // Allow update if user is buyer or seller
+      allow update: if isAuthenticated() && (
+        resource.data.buyerId == request.auth.uid ||
+        resource.data.sellerId == request.auth.uid
+      );
+      
+      // Allow delete only by buyer
+      allow delete: if isAuthenticated() && 
+        resource.data.buyerId == request.auth.uid;
+    }
+  }
+}
