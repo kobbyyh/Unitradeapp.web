@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FCM API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; background: #0d9488; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .log { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>FCM API Test</h1>
+    
+    <button onclick="testHealth()">Test Health Endpoint</button>
+    <button onclick="testFCM()">Test FCM Endpoint</button>
+    <button onclick="clearLog()">Clear Log</button>
+    
+    <div class="log" id="log">
+        <div>FCM API Test Console</div>
+        <div>========================</div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '<div>FCM API Test Console</div><div>========================</div>';
+        }
+
+        async function testHealth() {
+            log('🔍 Testing health endpoint...');
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const data = await response.json();
+                log(`✅ Health check: ${response.status} - ${JSON.stringify(data)}`);
+            } catch (error) {
+                log(`❌ Health check failed: ${error.message}`);
+            }
+        }
+
+        async function testFCM() {
+            log('🔍 Testing FCM endpoint...');
+            try {
+                const response = await fetch('http://localhost:3001/api/send-fcm-notification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sellerUserId: 'test-seller-123',
+                        orderData: {
+                            id: 'test-order-123',
+                            productTitle: 'Test Product',
+                            buyerName: 'Test Buyer',
+                            totalPrice: 100
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                log(`✅ FCM test: ${response.status} - ${JSON.stringify(data)}`);
+            } catch (error) {
+                log(`❌ FCM test failed: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

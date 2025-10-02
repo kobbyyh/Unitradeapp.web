@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Seller Dashboard | Unitrade</title>
+    <link rel="icon" type="image/png" href="./images/app_logo.png">
+    <link rel="shortcut icon" type="image/png" href="./images/app_logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-functions-compat.js"></script>
+    <script src="js/firebase-config-public.js"></script>
+    <script src="js/firebase-init.js"></script>
+    
+    <!-- FCM Service -->
+    <script src="js/fcm-service.js"></script>
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(0, 77, 64, 0.08) 0%, rgba(20, 184, 166, 0.1) 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .notification-item {
+            transition: all 0.3s ease;
+        }
+        .notification-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .unread {
+            border-left: 4px solid #0d9488;
+            background: rgba(13, 148, 136, 0.05);
+        }
+        .read {
+            border-left: 4px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <img src="./images/app_logo.png" alt="Unitrade" class="h-8 w-8 mr-3">
+                    <h1 class="text-xl font-bold text-gray-800">Unitrade - Notifications</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="seller-dashboard.html" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-home mr-1"></i> Dashboard
+                    </a>
+                    <a href="seller-my-listings.html" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-box mr-1"></i> My Listings
+                    </a>
+                    <button onclick="logout()" class="text-red-600 hover:text-red-800">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="glass-effect rounded-lg p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Order Notifications</h2>
+                    <p class="text-gray-600">Stay updated with new orders and customer messages</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="markAllAsRead()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                        <i class="fas fa-check-double mr-1"></i> Mark All Read
+                    </button>
+                    <button onclick="refreshNotifications()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+                        <i class="fas fa-sync-alt mr-1"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications List -->
+        <div class="space-y-4" id="notificationsList">
+            <!-- Loading State -->
+            <div id="loadingState" class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-2xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500">Loading notifications...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-12 hidden">
+                <i class="fas fa-bell-slash text-4xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-500 mb-2">No notifications yet</h3>
+                <p class="text-gray-400">You'll see new order notifications here when customers place orders.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Template (Hidden) -->
+    <template id="notificationTemplate">
+        <div class="notification-item glass-effect rounded-lg p-6 cursor-pointer" data-order-id="">
+            <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-shopping-cart text-teal-600"></i>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900 notification-title">New Order</h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="notification-time text-sm text-gray-500"></span>
+                            <span class="notification-status px-2 py-1 rounded-full text-xs font-medium"></span>
+                        </div>
+                    </div>
+                    <p class="notification-message text-gray-600 mt-1"></p>
+                    <div class="mt-3 flex items-center space-x-4 text-sm text-gray-500">
+                        <span class="notification-product"></span>
+                        <span class="notification-buyer"></span>
+                        <span class="notification-phone"></span>
+                        <span class="notification-total"></span>
+                    </div>
+                    <div class="mt-2 flex space-x-2">
+                        <button onclick="callBuyer(event)" class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600">
+                            <i class="fas fa-phone mr-1"></i> Call Buyer
+                        </button>
+                        <button onclick="whatsappBuyer(event)" class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">
+                            <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, query, where, getDocs, orderBy, updateDoc, doc, serverTimestamp, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Initialize Firebase
+        const firebaseConfig = window.FIREBASE_CONFIG;
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let notifications = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🔔 Notifications page loaded');
+            
+            try {
+                // Check authentication
+                console.log('🔍 Checking authentication...');
+                await checkAuth();
+                console.log('✅ Authentication successful');
+                
+                // Initialize FCM
+                console.log('🔍 Initializing FCM...');
+                await initializeFCM();
+                console.log('✅ FCM initialized');
+                
+                // Load notifications
+                console.log('🔍 Loading notifications...');
+                await loadNotifications();
+                console.log('✅ Notifications loaded');
+                
+                // Set up real-time listener
+                console.log('🔍 Setting up real-time listener...');
+                setupRealtimeListener();
+                console.log('✅ Real-time listener set up');
+                
+            } catch (error) {
+                console.error('❌ Page initialization failed:', error);
+                // Don't redirect immediately, let the auth check handle it
+            }
+        });
+
+        // Check authentication
+        async function checkAuth() {
+            return new Promise((resolve, reject) => {
+                try {
+                    if (typeof auth === 'undefined') {
+                        console.error('❌ Firebase Auth not available');
+                        window.location.href = 'seller-login.html';
+                        reject('Auth not available');
+                        return;
+                    }
+
+                    auth.onAuthStateChanged(async (user) => {
+                        if (user) {
+                            // Check if user is a seller
+                            try {
+                                const userQuery = query(collection(db, 'users'), where('uid', '==', user.uid));
+                                const querySnapshot = await getDocs(userQuery);
+                                
+                                if (!querySnapshot.empty) {
+                                    const userData = querySnapshot.docs[0].data();
+                                    
+                                    // Allow all users to access seller notifications (dual role system)
+                                    currentUser = user;
+                                    console.log('✅ User authenticated for seller notifications:', user.uid);
+                                    resolve(user);
+                                } else {
+                                    console.log('❌ User not found in database, redirecting to login');
+                                    alert('User not found. Please register first.');
+                                    window.location.href = 'seller-login.html';
+                                    reject('User not found');
+                                }
+                            } catch (error) {
+                                console.error('❌ Error checking user type:', error);
+                                alert('Authentication error. Please try again.');
+                                window.location.href = 'seller-login.html';
+                                reject(error);
+                            }
+                        } else {
+                            console.log('❌ User not authenticated, redirecting to login');
+                            window.location.href = 'seller-login.html';
+                            reject('Not authenticated');
+                        }
+                    });
+                } catch (error) {
+                    console.error('❌ Auth check failed:', error);
+                    window.location.href = 'seller-login.html';
+                    reject(error);
+                }
+            });
+        }
+
+        // Initialize FCM
+        async function initializeFCM() {
+            try {
+                if (typeof fcmService !== 'undefined') {
+                    await fcmService.initialize();
+                    console.log('✅ FCM initialized for notifications');
+                }
+            } catch (error) {
+                console.error('❌ FCM initialization failed:', error);
+            }
+        }
+
+        // Load notifications from Firestore
+        async function loadNotifications() {
+            try {
+                if (!currentUser) return;
+
+                console.log('📱 Loading notifications...');
+                
+                // Query orders for this seller
+                const ordersQuery = query(
+                    collection(db, 'orders'),
+                    where('sellerId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+
+                const snapshot = await getDocs(ordersQuery);
+                notifications = [];
+
+                snapshot.forEach((doc) => {
+                    const orderData = doc.data();
+                    notifications.push({
+                        id: doc.id,
+                        ...orderData,
+                        isRead: orderData.isRead || false,
+                        notificationSent: orderData.notificationSent || false
+                    });
+                });
+
+                console.log('📱 Loaded notifications:', notifications.length);
+                renderNotifications();
+                
+            } catch (error) {
+                console.error('❌ Error loading notifications:', error);
+                showEmptyState();
+            }
+        }
+
+        // Render notifications
+        function renderNotifications() {
+            const container = document.getElementById('notificationsList');
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            const template = document.getElementById('notificationTemplate');
+
+            loadingState.classList.add('hidden');
+
+            if (notifications.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = '';
+
+            notifications.forEach(notification => {
+                const clone = template.content.cloneNode(true);
+                const notificationElement = clone.querySelector('.notification-item');
+                
+                // Set data attributes
+                notificationElement.setAttribute('data-order-id', notification.id);
+                notificationElement.onclick = () => viewOrder(notification.id);
+                
+                // Set status
+                if (notification.isRead) {
+                    notificationElement.classList.add('read');
+                    notificationElement.querySelector('.notification-status').textContent = 'Read';
+                    notificationElement.querySelector('.notification-status').classList.add('bg-gray-100', 'text-gray-600');
+                } else {
+                    notificationElement.classList.add('unread');
+                    notificationElement.querySelector('.notification-status').textContent = 'New';
+                    notificationElement.querySelector('.notification-status').classList.add('bg-green-100', 'text-green-600');
+                }
+
+                // Set content
+                notificationElement.querySelector('.notification-title').textContent = 'New Order Received';
+                notificationElement.querySelector('.notification-message').textContent = 
+                    `${notification.productTitle} - ${notification.buyerName}`;
+                notificationElement.querySelector('.notification-product').textContent = 
+                    `Product: ${notification.productTitle}`;
+                notificationElement.querySelector('.notification-buyer').textContent = 
+                    `Buyer: ${notification.buyerName}`;
+                notificationElement.querySelector('.notification-phone').textContent = 
+                    `Phone: ${notification.buyerContact || notification.buyerPhone || 'Not provided'}`;
+                notificationElement.querySelector('.notification-total').textContent = 
+                    `Total: GHS ${notification.totalPrice}`;
+                notificationElement.querySelector('.notification-time').textContent = 
+                    formatTime(notification.createdAt);
+                
+                // Store phone number for contact buttons
+                notificationElement.setAttribute('data-buyer-phone', notification.buyerContact || notification.buyerPhone || '');
+
+                container.appendChild(clone);
+            });
+        }
+
+        // View order details
+        function viewOrder(orderId) {
+            // Mark as read
+            markAsRead(orderId);
+            
+            // Navigate to order details (you can create this page)
+            window.location.href = `seller-dashboard.html?order=${orderId}`;
+        }
+
+        // Mark notification as read
+        async function markAsRead(orderId) {
+            try {
+                await updateDoc(doc(db, 'orders', orderId), {
+                    isRead: true,
+                    readAt: serverTimestamp()
+                });
+
+                // Update local state
+                const notification = notifications.find(n => n.id === orderId);
+                if (notification) {
+                    notification.isRead = true;
+                    renderNotifications();
+                }
+            } catch (error) {
+                console.error('❌ Error marking as read:', error);
+            }
+        }
+
+        // Mark all as read
+        async function markAllAsRead() {
+            try {
+                const unreadNotifications = notifications.filter(n => !n.isRead);
+                
+                for (const notification of unreadNotifications) {
+                    await updateDoc(doc(db, 'orders', notification.id), {
+                        isRead: true,
+                        readAt: serverTimestamp()
+                    });
+                }
+
+                // Update local state
+                notifications.forEach(n => n.isRead = true);
+                renderNotifications();
+                
+                console.log('✅ All notifications marked as read');
+            } catch (error) {
+                console.error('❌ Error marking all as read:', error);
+            }
+        }
+
+        // Refresh notifications
+        async function refreshNotifications() {
+            await loadNotifications();
+        }
+
+        // Set up real-time listener
+        function setupRealtimeListener() {
+            if (!currentUser) return;
+
+            const ordersQuery = query(
+                collection(db, 'orders'),
+                where('sellerId', '==', currentUser.uid),
+                orderBy('createdAt', 'desc')
+            );
+
+            onSnapshot(ordersQuery, (snapshot) => {
+                console.log('📱 Real-time update received');
+                loadNotifications();
+            });
+        }
+
+        // Format time
+        function formatTime(timestamp) {
+            if (!timestamp) return 'Just now';
+            
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Show empty state
+        function showEmptyState() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('emptyState').classList.remove('hidden');
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                if (confirm('Are you sure you want to logout?')) {
+                    await signOut(auth);
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('❌ Logout failed:', error);
+            }
+        }
+
+        // Make logout globally accessible
+        window.logout = logout;
+
+        // Contact buyer functions
+        function callBuyer(event) {
+            event.stopPropagation();
+            const notificationElement = event.target.closest('.notification-item');
+            const phoneNumber = notificationElement.getAttribute('data-buyer-phone');
+            
+            if (phoneNumber && phoneNumber !== 'Not provided') {
+                // Format phone number for calling
+                let formattedPhone = phoneNumber.replace(/[\s\-\(\)]/g, '');
+                if (!formattedPhone.startsWith('+')) {
+                    if (formattedPhone.startsWith('0')) {
+                        formattedPhone = '+233' + formattedPhone.substring(1);
+                    } else if (formattedPhone.startsWith('233')) {
+                        formattedPhone = '+' + formattedPhone;
+                    } else {
+                        formattedPhone = '+233' + formattedPhone;
+                    }
+                }
+                
+                window.open(`tel:${formattedPhone}`, '_self');
+            } else {
+                alert('Phone number not available for this buyer');
+            }
+        }
+
+        function whatsappBuyer(event) {
+            event.stopPropagation();
+            const notificationElement = event.target.closest('.notification-item');
+            const phoneNumber = notificationElement.getAttribute('data-buyer-phone');
+            
+            if (phoneNumber && phoneNumber !== 'Not provided') {
+                // Format phone number for WhatsApp
+                let formattedPhone = phoneNumber.replace(/[\s\-\(\)]/g, '');
+                if (!formattedPhone.startsWith('+')) {
+                    if (formattedPhone.startsWith('0')) {
+                        formattedPhone = '+233' + formattedPhone.substring(1);
+                    } else if (formattedPhone.startsWith('233')) {
+                        formattedPhone = '+' + formattedPhone;
+                    } else {
+                        formattedPhone = '+233' + formattedPhone;
+                    }
+                }
+                
+                const message = `Hello! I received your order on Unitrade. Let's discuss the details.`;
+                const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            } else {
+                alert('Phone number not available for this buyer');
+            }
+        }
+
+        // Make contact functions globally accessible
+        window.callBuyer = callBuyer;
+        window.whatsappBuyer = whatsappBuyer;
+    </script>
+</body>
+</html>

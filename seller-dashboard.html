@@ -9,9 +9,48 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="js/unified-notification-service.js"></script>
+    <style>
+        /* Ensure dropdown menus work properly */
+        .group:hover .group-hover\:block {
+            display: block;
+        }
+        
+        /* Tablet menu styling */
+        #tabletMenu {
+            transition: all 0.2s ease;
+        }
+        
+        /* Responsive navigation adjustments */
+        @media (max-width: 1024px) {
+            .hidden.lg\:flex {
+                display: none !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hidden.md\:flex {
+                display: none !important;
+            }
+        }
+        
+        /* Compact navigation styling */
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(13, 148, 136, 0.1);
+        }
+    </style>
     <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-functions-compat.js"></script>
     <script src="js/firebase-config-public.js"></script>
     <script src="js/firebase-init.js"></script>
+    
+    <!-- FCM Service -->
+    <script src="js/fcm-service.js"></script>
     
     <!-- Global Functions -->
     <script>
@@ -34,6 +73,34 @@
                 console.log('Mobile menu hidden');
             }
         }
+
+        // Tablet menu toggle function
+        window.toggleTabletMenu = function() {
+            console.log('Tablet menu toggle clicked');
+            const tabletMenu = document.getElementById('tabletMenu');
+            if (!tabletMenu) {
+                console.error('Tablet menu element not found');
+                return;
+            }
+            
+            if (tabletMenu.classList.contains('hidden')) {
+                tabletMenu.classList.remove('hidden');
+                console.log('Tablet menu shown');
+            } else {
+                tabletMenu.classList.add('hidden');
+                console.log('Tablet menu hidden');
+            }
+        };
+
+        // Close tablet menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const tabletMenu = document.getElementById('tabletMenu');
+            const tabletButton = event.target.closest('button[onclick="toggleTabletMenu()"]');
+            
+            if (tabletMenu && !tabletMenu.contains(event.target) && !tabletButton) {
+                tabletMenu.classList.add('hidden');
+            }
+        });
 
         // Logout function
         window.logout = async function() {
@@ -99,15 +166,41 @@
                 }
                 
                 currentUser = user;
-                loadUserData(user);
-                loadSellerStats();
-                loadSellerProducts();
-                loadNotificationCount(user.uid);
+                // Check if user is a seller
+                checkUserType(user);
             } else {
                 console.log('User is signed out');
                 window.location.href = 'seller-login.html';
             }
         });
+
+        // Check user type from Firestore
+        async function checkUserType(user) {
+            try {
+                const usersRef = collection(db, 'users');
+                const q = query(usersRef, where('email', '==', user.email));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const userData = querySnapshot.docs[0].data();
+                    
+                    // Allow all users to access seller dashboard (dual role system)
+                    loadUserData(user);
+                    loadSellerStats();
+                    loadSellerProducts();
+                    loadNotificationCount(user.uid);
+                    console.log('User authenticated for seller dashboard:', userData.fullName || user.email);
+                } else {
+                    // User not found in database, redirect to login
+                    console.log('User not found in database, redirecting to login');
+                    alert('User not found. Please register first.');
+                    window.location.href = 'seller-login.html';
+                }
+            } catch (error) {
+                console.error('Error checking user type:', error);
+                window.location.href = 'seller-login.html';
+            }
+        }
 
         // Load user data
         async function loadUserData(user) {
@@ -354,12 +447,26 @@
             try {
                 const unreadCount = await unifiedNotificationService.getUnreadCount(sellerId);
                 const badge = document.getElementById('notificationBadge');
+                const badgeMd = document.getElementById('notificationBadgeMd');
+                const mobileBadge = document.getElementById('mobileNotificationBadge');
                 
                 if (unreadCount > 0) {
-                    badge.textContent = unreadCount;
-                    badge.classList.remove('hidden');
+                    if (badge) {
+                        badge.textContent = unreadCount;
+                        badge.classList.remove('hidden');
+                    }
+                    if (badgeMd) {
+                        badgeMd.textContent = unreadCount;
+                        badgeMd.classList.remove('hidden');
+                    }
+                    if (mobileBadge) {
+                        mobileBadge.textContent = unreadCount;
+                        mobileBadge.classList.remove('hidden');
+                    }
                 } else {
-                    badge.classList.add('hidden');
+                    if (badge) badge.classList.add('hidden');
+                    if (badgeMd) badgeMd.classList.add('hidden');
+                    if (mobileBadge) mobileBadge.classList.add('hidden');
                 }
             } catch (error) {
                 console.error('Error loading notification count:', error);
@@ -405,23 +512,64 @@
                 </div>
                 
                 <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-4">
-                    <a href="seller-dashboard.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
+                <div class="hidden lg:flex items-center space-x-2">
+                    <a href="seller-dashboard.html" class="text-gray-700 hover:text-teal-600 px-2 py-2 rounded-md text-xs font-medium">
                         <i class="fas fa-home mr-1"></i>Dashboard
                     </a>
-                    <a href="seller-my-listings.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
-                        <i class="fas fa-list mr-1"></i>My Listings
+                    <a href="seller-my-listings.html" class="text-gray-700 hover:text-teal-600 px-2 py-2 rounded-md text-xs font-medium">
+                        <i class="fas fa-list mr-1"></i>Listings
                     </a>
-                    <a href="seller-profile-settings.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
-                        <i class="fas fa-user-cog mr-1"></i>Profile
+                    <a href="seller-notifications.html" class="text-gray-700 hover:text-teal-600 px-2 py-2 rounded-md text-xs font-medium relative">
+                        <i class="fas fa-bell mr-1"></i>Orders
+                        <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center hidden">0</span>
                     </a>
-                    <a href="seller-notifications-dashboard.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium relative">
-                        <i class="fas fa-bell mr-1"></i>Notifications
-                        <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 px-2 py-2 rounded-md text-xs font-medium">
+                        <i class="fas fa-shopping-bag mr-1"></i>Buy
                     </a>
-                    <button onclick="logout()" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
-                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
-                    </button>
+                    <div class="relative group">
+                        <button class="text-gray-700 hover:text-teal-600 px-2 py-2 rounded-md text-xs font-medium flex items-center">
+                            <i class="fas fa-user-cog mr-1"></i>Profile
+                            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        </button>
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden group-hover:block">
+                            <a href="seller-profile-settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-cog mr-2"></i>Settings
+                            </a>
+                            <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medium screen navigation (tablet) -->
+                <div class="hidden md:flex lg:hidden items-center space-x-1">
+                    <a href="seller-dashboard.html" class="text-gray-700 hover:text-teal-600 px-1 py-2 rounded-md text-xs font-medium">
+                        <i class="fas fa-home"></i>
+                    </a>
+                    <a href="seller-my-listings.html" class="text-gray-700 hover:text-teal-600 px-1 py-2 rounded-md text-xs font-medium">
+                        <i class="fas fa-list"></i>
+                    </a>
+                    <a href="seller-notifications.html" class="text-gray-700 hover:text-teal-600 px-1 py-2 rounded-md text-xs font-medium relative">
+                        <i class="fas fa-bell"></i>
+                        <span id="notificationBadgeMd" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center hidden">0</span>
+                    </a>
+                    <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 px-1 py-2 rounded-md text-xs font-medium">
+                        <i class="fas fa-shopping-bag"></i>
+                    </a>
+                    <div class="relative">
+                        <button onclick="toggleTabletMenu()" class="text-gray-700 hover:text-teal-600 px-1 py-2 rounded-md text-xs font-medium">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div id="tabletMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden">
+                            <a href="seller-profile-settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-cog mr-2"></i>Settings
+                            </a>
+                            <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Mobile menu button -->
@@ -435,20 +583,23 @@
             <!-- Mobile Navigation Menu -->
             <div id="mobileMenu" class="md:hidden hidden transition-all duration-300 ease-in-out">
                 <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white/95 backdrop-blur-md rounded-lg mt-2 shadow-xl border border-gray-200">
-                    <a href="seller-dashboard.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium">
+                    <a href="seller-dashboard.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-home mr-2"></i>Dashboard
                     </a>
-                    <a href="seller-my-listings.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium">
+                    <a href="seller-my-listings.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-list mr-2"></i>My Listings
                     </a>
-                    <a href="seller-profile-settings.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium">
-                        <i class="fas fa-user-cog mr-2"></i>Profile
+                    <a href="seller-notifications.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium relative">
+                        <i class="fas fa-bell mr-2"></i>Orders
+                        <span id="mobileNotificationBadge" class="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center hidden">0</span>
                     </a>
-                    <a href="seller-notifications-dashboard.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium relative">
-                        <i class="fas fa-bell mr-2"></i>Notifications
-                        <span id="mobileNotificationBadge" class="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-shopping-bag mr-2"></i>Buyer Dashboard
                     </a>
-                    <button onclick="logout()" class="text-gray-700 hover:text-teal-600 block w-full text-left px-3 py-2 rounded-md text-base font-medium">
+                    <a href="seller-profile-settings.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-cog mr-2"></i>Settings
+                    </a>
+                    <button onclick="logout()" class="text-gray-700 hover:text-teal-600 block w-full text-left px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-sign-out-alt mr-2"></i>Logout
                     </button>
                 </div>
@@ -489,7 +640,6 @@
                 </div>
             </div>
 
-            
             <div class="bg-white rounded-xl p-6 shadow-lg">
                 <div class="flex items-center">
                     <div class="bg-yellow-100 p-3 rounded-lg">
@@ -501,10 +651,7 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Additional Analytics -->
-        <div class="grid md:grid-cols-2 gap-6 mb-8">
             <div class="bg-white rounded-xl p-6 shadow-lg">
                 <div class="flex items-center">
                     <div class="bg-red-100 p-3 rounded-lg">
@@ -516,9 +663,10 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-
-
+        <!-- Analytics Row -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
             <div class="bg-white rounded-xl p-6 shadow-lg">
                 <div class="flex items-center">
                     <div class="bg-pink-100 p-3 rounded-lg">
@@ -530,15 +678,15 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Category Breakdown -->
-        <div class="bg-white rounded-xl p-6 shadow-lg mb-8">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Category Breakdown</h3>
-            <div id="categoryBreakdown" class="space-y-2">
-                <p class="text-gray-500 text-center">Loading categories...</p>
+            <div class="bg-white rounded-xl p-6 shadow-lg">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Category Breakdown</h3>
+                <div id="categoryBreakdown" class="space-y-2">
+                    <p class="text-gray-500 text-center">Loading categories...</p>
+                </div>
             </div>
         </div>
+
 
         <!-- Quick Actions -->
         <div class="mb-8">
@@ -588,3 +736,5 @@
     </div>
 </body>
 </html>
+
+

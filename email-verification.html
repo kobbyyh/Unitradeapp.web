@@ -23,7 +23,7 @@
     <div class="w-full max-w-md mx-4">
         <!-- Logo and Title -->
         <div class="text-center mb-8">
-            <img src="../assets/app_logo.png" alt="Unitrade" class="h-20 w-20 mx-auto mb-4">
+            <img src="./images/app_logo.png" alt="Unitrade" class="h-20 w-20 mx-auto mb-4">
             <h1 class="text-3xl font-bold text-gray-900">Verify Your Email</h1>
             <p class="text-gray-600 mt-2">Check your inbox for verification link</p>
         </div>
@@ -98,15 +98,28 @@
         let currentUser = null;
 
         // Check authentication state
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                if (user.emailVerified) {
-                    // User is already verified, redirect to appropriate dashboard
-                    redirectToDashboard(user);
-                } else {
-                    // User is logged in but not verified, show verification page
-                    console.log('User logged in but email not verified');
+                // Always reload user to get latest verification status
+                try {
+                    await reload(user);
+                    currentUser = auth.currentUser; // Get the reloaded user
+                    
+                    if (currentUser.emailVerified) {
+                        // User is verified, redirect to appropriate dashboard
+                        console.log('User email verified, redirecting to dashboard');
+                        await redirectToDashboard(currentUser);
+                    } else {
+                        // User is logged in but not verified, show verification page
+                        console.log('User logged in but email not verified');
+                    }
+                } catch (error) {
+                    console.error('Error reloading user:', error);
+                    // If reload fails, check current status
+                    if (user.emailVerified) {
+                        await redirectToDashboard(user);
+                    }
                 }
             } else {
                 // No user logged in, redirect to login
@@ -123,11 +136,9 @@
                 
                 if (!querySnapshot.empty) {
                     const userDoc = querySnapshot.docs[0].data();
-                    if (userDoc.userType === 'seller') {
-                        window.location.href = 'seller-dashboard.html';
-                    } else {
-                        window.location.href = 'buyer-dashboard.html';
-                    }
+                    // All users are buyers by default, but can access both dashboards
+                    // Default to buyer dashboard after email verification
+                    window.location.href = 'buyer-dashboard.html';
                 } else {
                     // Default to buyer if no user type found
                     window.location.href = 'buyer-dashboard.html';
@@ -148,7 +159,7 @@
 
             if (!currentUser) {
                 alert('No user found. Please sign up again.');
-                window.location.href = 'buyer-signup.html';
+                window.location.href = 'signup.html';
                 return;
             }
 
@@ -174,7 +185,7 @@
         document.getElementById('checkVerifiedBtn').addEventListener('click', async function() {
             if (!currentUser) {
                 alert('No user found. Please sign up again.');
-                window.location.href = 'buyer-signup.html';
+                window.location.href = 'signup.html';
                 return;
             }
 
@@ -186,6 +197,13 @@
             try {
                 // Reload user to get latest verification status
                 await reload(currentUser);
+                currentUser = auth.currentUser; // Get the reloaded user
+                
+                console.log('Checking verification status:', {
+                    email: currentUser.email,
+                    emailVerified: currentUser.emailVerified,
+                    uid: currentUser.uid
+                });
                 
                 if (currentUser.emailVerified) {
                     // Update user document in Firestore
@@ -199,12 +217,14 @@
                             emailVerified: true,
                             updatedAt: new Date()
                         });
+                        console.log('Updated Firestore document with emailVerified: true');
                     }
                     
                     alert('Email verified successfully! Redirecting to dashboard...');
                     await redirectToDashboard(currentUser);
                 } else {
                     alert('Email not yet verified. Please check your inbox and click the verification link.');
+                    console.log('Email verification status:', currentUser.emailVerified);
                 }
             } catch (error) {
                 console.error('Error checking verification:', error);

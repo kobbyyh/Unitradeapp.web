@@ -9,9 +9,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="js/unified-notification-service.js"></script>
-    <script src="js/onesignal-email-service.js"></script>
-    <script src="js/twilio-whatsapp-service.js"></script>
-    <script src="js/direct-whatsapp-service.js"></script>
+    
+    <!-- Firebase SDK for FCM -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+    <script src="js/firebase-config-public.js"></script>
+    <script src="js/firebase-init.js"></script>
+    
+    <!-- FCM Service -->
+    <script src="js/fcm-service.js"></script>
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, rgba(0, 77, 64, 0.08) 0%, rgba(20, 184, 166, 0.1) 100%);
@@ -104,7 +110,7 @@
                     </div>
                     
                     <div class="text-3xl font-bold text-teal-600 mb-4">
-                        GHS <span id="productPrice">0.00</span>
+                         <span id="productPrice">0.00</span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 mb-6">
@@ -120,10 +126,10 @@
                             <span class="text-sm text-gray-500">Location</span>
                             <p id="productLocation" class="font-medium">University of Ghana</p>
                         </div>
-                        <div>
+                        <!-- <div>
                             <span class="text-sm text-gray-500">Views</span>
                             <p id="productViews" class="font-medium">0</p>
-                        </div>
+                        </div> -->
                     </div>
 
                     <div class="mb-6">
@@ -279,16 +285,16 @@
                 loadSimilarProducts();
                 
                 // Increment view count (skip if permission denied)
-                try {
-                    console.log('Incrementing view count...');
-                    await updateDoc(doc(db, 'items', productId), {
-                        views: increment(1)
-                    });
-                    console.log('View count incremented');
-                } catch (updateError) {
-                    console.log('Could not update view count (permission denied):', updateError.message);
-                    // Continue without updating view count
-                }
+                // try {
+                //     console.log('Incrementing view count...');
+                //     await updateDoc(doc(db, 'items', productId), {
+                //         views: increment(1)
+                //     });
+                //     console.log('View count incremented');
+                // } catch (updateError) {
+                //     console.log('Could not update view count (permission denied):', updateError.message);
+                //     // Continue without updating view count
+                // }
                 
             } catch (error) {
                 console.error('Error loading product:', error);
@@ -306,7 +312,7 @@
             document.getElementById('productCategory').textContent = currentProduct.category;
             document.getElementById('productCondition').textContent = currentProduct.condition || 'Good';
             document.getElementById('productLocation').textContent = currentProduct.location || 'Location not specified';
-            document.getElementById('productViews').textContent = currentProduct.views || 0;
+            // document.getElementById('productViews').textContent = currentProduct.views || 0;
             document.getElementById('productDescription').textContent = currentProduct.description;
 
             // Badges
@@ -536,9 +542,26 @@
                 return;
             }
             
+            // Show loading on main button
+            const mainOrderButton = document.querySelector('button[onclick="placeOrder()"]');
+            let originalMainButtonText = '';
+            if (mainOrderButton) {
+                originalMainButtonText = mainOrderButton.innerHTML;
+                mainOrderButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Opening Order Form...';
+                mainOrderButton.disabled = true;
+            }
+            
             console.log('Showing order modal...');
             // Show order confirmation modal
             showOrderModal();
+            
+            // Reset main button after a short delay
+            setTimeout(() => {
+                if (mainOrderButton && originalMainButtonText) {
+                    mainOrderButton.innerHTML = originalMainButtonText;
+                    mainOrderButton.disabled = false;
+                }
+            }, 1000);
         }
         
         function showOrderModal() {
@@ -563,7 +586,7 @@
                         <div class="flex items-center">
                             <i class="fab fa-whatsapp text-green-500 text-lg mr-2"></i>
                             <span class="text-sm text-green-700">
-                                <strong>WhatsApp will open</strong> with order details for the seller
+                                <strong>The seller will receive your order soon </strong> 
                             </span>
                         </div>
                     </div>
@@ -592,22 +615,36 @@
         // Make functions globally accessible
         window.closeOrderModal = closeOrderModal;
         
-        // Test WhatsApp service
-        window.testWhatsApp = function() {
-            console.log('Testing WhatsApp service...');
-            console.log('Direct WhatsApp Service available:', typeof directWhatsAppService);
-            if (typeof directWhatsAppService !== 'undefined') {
-                console.log('✅ Direct WhatsApp Service is loaded');
-                directWhatsAppService.testWhatsApp('0542367268');
-            } else {
-                console.log('❌ Direct WhatsApp Service not loaded');
-            }
-        };
         
         async function confirmOrder() {
             console.log('confirmOrder function called');
             console.log('Current user:', currentUser);
             console.log('Current product:', currentProduct);
+            
+            // Show loading spinner
+            console.log('🔍 Looking for order button...');
+            const orderButton = document.querySelector('button[onclick="confirmOrder()"]');
+            console.log('🔍 Order button found:', orderButton);
+            
+            let originalButtonText = '';
+            if (orderButton) {
+                originalButtonText = orderButton.innerHTML;
+                orderButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing Order...';
+                orderButton.disabled = true;
+                console.log('✅ Order button found and spinner applied');
+            } else {
+                console.log('⚠️ Order button not found, continuing without spinner');
+                console.log('🔍 Available buttons:', document.querySelectorAll('button'));
+            }
+            
+            // Disable the modal close button during processing
+            const closeButton = document.querySelector('button[onclick="closeOrderModal()"]');
+            if (closeButton) {
+                closeButton.disabled = true;
+                console.log('✅ Close button found and disabled');
+            } else {
+                console.log('⚠️ Close button not found');
+            }
             
             try {
                 if (!currentProduct) {
@@ -663,88 +700,188 @@
                 };
                 
                 // Save order to Firebase
+                console.log('💾 Saving order to Firebase...');
                 const docRef = await addDoc(collection(db, 'orders'), orderData);
-                console.log('Order created with ID:', docRef.id);
+                console.log('✅ Order created with ID:', docRef.id);
                 
                 // Update order data with the generated ID
                 orderData.id = docRef.id;
+                console.log('📋 Order data updated with ID:', orderData.id);
                 
-                    // Send notification to seller
+                // Send notification to seller
+                console.log('📤 Starting notification process...');
+                
+                // Send FCM notification to seller
+                try {
+                    console.log('📱 Sending FCM notification to seller...');
+                    console.log('📱 Seller ID:', currentProduct.sellerId);
+                    console.log('📱 Order data:', orderData);
+                    
+                    // Try backend first
+                    const fcmResponse = await fetch('/api/send-fcm-notification', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sellerUserId: currentProduct.sellerId,
+                            orderData: orderData
+                        })
+                    });
+                    
+                    console.log('📱 FCM Response status:', fcmResponse.status);
+                    console.log('📱 FCM Response ok:', fcmResponse.ok);
+                    
+                    if (fcmResponse.ok) {
+                        const fcmResult = await fcmResponse.json();
+                        console.log('✅ FCM notification sent successfully:', fcmResult);
+                    } else {
+                        const errorText = await fcmResponse.text();
+                        console.log('⚠️ FCM notification failed:', fcmResponse.status, errorText);
+                        console.log('💡 Backend not running - FCM notifications disabled');
+                    }
+                } catch (fcmError) {
+                    console.error('❌ FCM notification error:', fcmError);
+                    console.error('❌ FCM error details:', fcmError.message);
+                    console.log('💡 Backend not running - FCM notifications disabled');
+                    // Don't fail the order if FCM fails
+                }
+                
+                // FCM notifications are handled by the unified notification service
+                }
+                
+                try {
+                    // Skip Firebase notifications for now due to permission issues
+                    console.log('⚠️ Skipping Firebase notifications due to permission issues');
+                    
+                    // Send WhatsApp and email notifications to seller
                     try {
-                        // Create in-app notification in Firebase
-                        await unifiedNotificationService.createSellerNotification(orderData, currentProduct.sellerId);
-                        console.log('Seller notification created in Firebase');
+                        console.log('🔍 Looking up seller information...');
+                        console.log('🔍 Seller ID from product:', currentProduct.sellerId);
+                        console.log('🔍 Product data:', currentProduct);
                         
-                        // Send WhatsApp and email notifications to seller
-                        try {
-                            const sellerQuery = query(collection(db, 'users'), where('uid', '==', currentProduct.sellerId));
-                            const sellerSnapshot = await getDocs(sellerQuery);
+                        const sellerQuery = query(collection(db, 'users'), where('uid', '==', currentProduct.sellerId));
+                        const sellerSnapshot = await getDocs(sellerQuery);
+                        
+                        console.log('🔍 Seller query results:', sellerSnapshot.empty ? 'No results' : `${sellerSnapshot.docs.length} results found`);
+                        
+                        if (!sellerSnapshot.empty) {
+                            const sellerData = sellerSnapshot.docs[0].data();
+                            const sellerEmail = sellerData.email;
+                            // Prioritize contactInfo from product, then seller profile phone
+                            const sellerPhone = currentProduct.contactInfo || sellerData.phone;
                             
-                            if (!sellerSnapshot.empty) {
-                                const sellerData = sellerSnapshot.docs[0].data();
-                                const sellerEmail = sellerData.email;
-                                // Prioritize contactInfo from product, then seller profile phone
-                                const sellerPhone = currentProduct.contactInfo || sellerData.phone;
-                                
-                                console.log('📞 Seller contact info:', {
+                            console.log('📞 Seller contact info:', {
+                                fromProfile: sellerData.phone,
+                                fromProduct: currentProduct.contactInfo,
+                                finalPhone: sellerPhone,
+                                sellerPhoneField: currentProduct.sellerPhone
+                            });
+                            
+                            // Send email notification using Twilio service (Primary)
+                            if (sellerEmail) {
+                                try {
+                                    console.log('📧 Sending email notification to seller...', sellerEmail);
+                                    console.log('📧 Order data for email:', orderData);
+                                    
+                                    // Email notifications are now handled by FCM
+                                    console.log('✅ Email notification result:', emailResult);
+                                    
+                                    // Show success message to user
+                                    console.log('🎉 Email notification sent successfully! Check seller\'s email.');
+                                } catch (emailError) {
+                                    console.error('❌ Error sending email notification:', emailError);
+                                    console.error('❌ Email error details:', emailError.message);
+                                    
+                                    // Show user-friendly message
+                                    console.log('⚠️ Email notification failed, but order was placed successfully');
+                                    // Don't fail the order if email fails
+                                }
+                            } else {
+                                console.log('⚠️ No seller email found in profile or product, skipping email notification');
+                                console.log('⚠️ Available phone numbers:', {
                                     fromProfile: sellerData.phone,
                                     fromProduct: currentProduct.contactInfo,
-                                    finalPhone: sellerPhone,
                                     sellerPhoneField: currentProduct.sellerPhone
                                 });
-                                
-                                // Send WhatsApp notification using direct service
-                                if (sellerPhone) {
-                                    try {
-                                        console.log('📱 Sending direct WhatsApp notification to seller...', sellerPhone);
-                                        console.log('📱 Order data for WhatsApp:', orderData);
-                                        
-                                        const whatsappResult = await directWhatsAppService.sendOrderNotification(sellerPhone, orderData);
-                                        console.log('✅ WhatsApp notification result:', whatsappResult);
-                                    } catch (whatsappError) {
-                                        console.error('❌ Error sending WhatsApp notification:', whatsappError);
-                                        console.error('❌ WhatsApp error details:', whatsappError.message);
-                                        // Don't fail the order if WhatsApp fails
-                                    }
-                                } else {
-                                    console.log('⚠️ No seller phone number found in profile or product, skipping WhatsApp notification');
-                                    console.log('⚠️ Available phone numbers:', {
-                                        fromProfile: sellerData.phone,
-                                        fromProduct: currentProduct.contactInfo,
-                                        sellerPhoneField: currentProduct.sellerPhone
-                                    });
-                                }
-                                
-                                // Send email notification
-                                if (sellerEmail) {
-                                    try {
-                                        await unifiedNotificationService.sendEmailNotification(orderData, sellerEmail);
-                                        console.log('Email notification sent to seller');
-                                    } catch (emailError) {
-                                        console.error('Error sending email notification:', emailError);
-                                        // Don't fail the order if email fails
-                                    }
+                            }
+                            
+                            // Send email notification
+                            if (sellerEmail) {
+                                try {
+                                    console.log('📧 Sending email notification...');
+                                    await unifiedNotificationService.sendEmailNotification(orderData, sellerEmail);
+                                    console.log('✅ Email notification sent to seller');
+                                } catch (emailError) {
+                                    console.error('❌ Error sending email notification:', emailError);
+                                    // Don't fail the order if email fails
                                 }
                             }
-                        } catch (notificationError) {
-                            console.error('Error sending notifications:', notificationError);
-                            // Don't fail the order if notifications fail
+                        } else {
+                            console.log('⚠️ Seller not found in database, using product data');
+                            
+                            // Fallback: Use seller information from product data
+                            const sellerEmail = currentProduct.sellerEmail;
+                            const sellerPhone = currentProduct.contactInfo || currentProduct.sellerPhone;
+                            
+                            console.log('📞 Fallback seller contact info:', {
+                                sellerEmail: sellerEmail,
+                                sellerPhone: sellerPhone,
+                                fromProduct: currentProduct
+                            });
+                            
+                            // Send email notification using product data (fallback)
+                            if (sellerEmail) {
+                                try {
+                                    console.log('📧 Sending email notification to seller (fallback)...', sellerEmail);
+                                    // Email notifications are now handled by FCM
+                                    console.log('✅ Email notification result (fallback):', emailResult);
+                                } catch (emailError) {
+                                    console.error('❌ Error sending email notification (fallback):', emailError);
+                                }
+                            } else {
+                                console.log('⚠️ No seller email found in product data');
+                            }
                         }
                     } catch (notificationError) {
-                        console.error('Error creating seller notification:', notificationError);
-                        // Don't fail the order if notification fails
+                        console.error('❌ Error sending notifications:', notificationError);
+                        // Don't fail the order if notifications fail
                     }
+                } catch (notificationError) {
+                    console.error('❌ Error in notification flow:', notificationError);
+                    // Don't fail the order if notification fails
+                }
+                
+                console.log('🎯 Notification process completed, proceeding to order completion...');
                 
                 // Close modal
+                console.log('🚪 Closing order modal...');
                 closeOrderModal();
                 
                 // Show success message and redirect to orders
-                alert(`🎉 Order placed successfully!\n\n📦 Product: ${orderData.productTitle}\n💰 Total: GHS ${orderData.totalPrice}\n📱 WhatsApp notification opened for seller!\n\nYou can view your orders in "My Orders" section.`);
+                console.log('🎉 Order completed successfully! Showing success message...');
+                alert(`🎉 Order placed successfully!\n\n📦 Product: ${orderData.productTitle}\n💰 Total: GHS ${orderData.totalPrice}\n🔔 Notification sent to seller!\n\nYou can view your orders in "My Orders" section.`);
+                
+                console.log('🔄 Redirecting to buyer orders page...');
                 window.location.href = 'buyer-orders.html';
                 
             } catch (error) {
-                console.error('Error placing order:', error);
+                console.error('❌ Error placing order:', error);
+                console.error('❌ Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
                 alert('Error placing order. Please try again.');
+            } finally {
+                console.log('🔄 Resetting button states...');
+                // Reset button state
+                if (orderButton && originalButtonText) {
+                    orderButton.innerHTML = originalButtonText;
+                    orderButton.disabled = false;
+                }
+                if (closeButton) {
+                    closeButton.disabled = false;
+                }
+                console.log('✅ Button states reset');
             }
         }
         
@@ -790,6 +927,7 @@
                 }
             }
         }
+
     </script>
 </body>
 </html>

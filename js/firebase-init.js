@@ -57,3 +57,12 @@ window.initializeFirebase = async function(firebaseConfig) {
         return { app, auth, db };
     }
 };
+
+
+
+
+
+
+
+
+

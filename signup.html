@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seller Signup - Unitrade</title>
+    <title>Signup - Unitrade</title>
     <link rel="icon" type="image/png" href="./images/app_logo.png">
     <link rel="shortcut icon" type="image/png" href="./images/app_logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,12 +17,16 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        .profile-image {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #14b8a6;
+        .role-option {
+            transition: all 0.3s ease;
+        }
+        .role-option.selected {
+            background: linear-gradient(135deg, #14b8a6, #0d9488);
+            color: white;
+            transform: scale(1.02);
+        }
+        .role-option:hover {
+            transform: scale(1.02);
         }
     </style>
 </head>
@@ -31,24 +35,13 @@
         <!-- Header -->
         <div class="text-center mb-8">
             <img src="./images/app_logo.png" alt="Unitrade" class="h-16 w-16 mx-auto mb-4">
-            <h1 class="text-3xl font-bold text-gray-900">Seller Signup</h1>
-            <p class="text-gray-600 mt-2">Join Unitrade as a seller</p>
+            <h1 class="text-3xl font-bold text-gray-900">Join Unitrade</h1>
+            <p class="text-gray-600 mt-2">Create your buyer account - you can also sell later!</p>
         </div>
 
         <!-- Signup Form -->
         <div class="glass-effect rounded-3xl p-8 shadow-xl">
             <form id="signupForm" class="space-y-6">
-                <!-- Profile Image Upload -->
-                <div class="text-center">
-                    <div class="relative inline-block">
-                        <img id="profileImage" src="../assets/default_profile.png" alt="Profile" class="profile-image mx-auto mb-4">
-                        <label for="imageUpload" class="absolute bottom-0 right-0 bg-teal-600 text-white rounded-full p-2 cursor-pointer hover:bg-teal-700 transition duration-200">
-                            <i class="fas fa-camera"></i>
-                        </label>
-                        <input type="file" id="imageUpload" accept="image/*" class="hidden">
-                    </div>
-                    <p class="text-sm text-gray-600">Click to upload profile picture</p>
-                </div>
 
                 <div class="grid md:grid-cols-2 gap-6">
                     <div>
@@ -58,39 +51,17 @@
                         </label>
                         <input type="text" id="fullName" name="fullName" required
                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
-                               placeholder="Your full name">
+                               placeholder="As per your school ID">
                     </div>
 
                     <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-at text-teal-600 mr-2"></i>
-                            Username
-                        </label>
-                        <input type="text" id="username" name="username" required
-                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
-                               placeholder="Choose a username">
-                    </div>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="schoolId" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="studentId" class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="fas fa-id-card text-teal-600 mr-2"></i>
-                            School ID
+                            Student ID Number
                         </label>
-                        <input type="text" id="schoolId" name="schoolId" required
+                        <input type="text" id="studentId" name="studentId" required
                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
-                               placeholder="Your school ID">
-                    </div>
-
-                    <div>
-                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-phone text-teal-600 mr-2"></i>
-                            Phone Number
-                        </label>
-                        <input type="tel" id="phone" name="phone" required
-                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
-                               placeholder="Your phone number">
+                               placeholder="Your student ID">
                     </div>
                 </div>
 
@@ -123,16 +94,29 @@
                     <input type="email" id="email" name="email" required
                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
                            placeholder="your.email@university.edu">
+                    <p class="text-sm text-gray-500 mt-1">Must be a valid university email address</p>
                 </div>
 
-                <div>
-                    <label for="hostel" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-home text-teal-600 mr-2"></i>
-                        Hostel
-                    </label>
-                    <input type="text" id="hostel" name="hostel" required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
-                           placeholder="Your hostel name">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-phone text-teal-600 mr-2"></i>
+                            Phone Number
+                        </label>
+                        <input type="tel" id="phone" name="phone" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                               placeholder="Your phone number">
+                    </div>
+
+                    <div>
+                        <label for="hostel" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-home text-teal-600 mr-2"></i>
+                            Hostel
+                        </label>
+                        <input type="text" id="hostel" name="hostel" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                               placeholder="Your hostel name">
+                    </div>
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-6">
@@ -143,7 +127,7 @@
                         </label>
                         <input type="password" id="password" name="password" required
                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
-                               placeholder="Create a password">
+                               placeholder="Create a strong password">
                     </div>
 
                     <div>
@@ -167,16 +151,23 @@
 
                 <button type="submit" 
                         class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-6 rounded-xl transition duration-300 shadow-lg hover:shadow-xl">
-                    <i class="fas fa-store mr-2"></i>
-                    Create Seller Account
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Create Buyer Account
                 </button>
             </form>
 
             <div class="mt-6 text-center">
                 <p class="text-gray-600">Already have an account?</p>
-                <a href="seller-login.html" class="text-teal-600 hover:text-teal-800 font-medium">
-                    Login as a Seller
-                </a>
+                <div class="space-x-4">
+                    <a href="buyer-login.html" class="text-teal-600 hover:text-teal-800 font-medium">
+                        Login as Buyer
+                    </a>
+                    <span class="text-gray-400">|</span>
+                    <a href="seller-login.html" class="text-teal-600 hover:text-teal-800 font-medium">
+                        Login as Seller
+                    </a>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">Same credentials work for both buyer and seller login!</p>
             </div>
         </div>
 
@@ -216,22 +207,12 @@
             if (user) {
                 // Only redirect if email is verified
                 if (user.emailVerified) {
-                    window.location.href = 'seller-dashboard.html';
+                    // Redirect based on user type - this will be handled after account creation
+                    window.location.href = 'buyer-dashboard.html';
                 }
             }
         });
 
-        // Profile image upload functionality
-        document.getElementById('imageUpload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('profileImage').src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
 
         // Handle signup form submission
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
@@ -239,8 +220,7 @@
             
             const formData = new FormData(this);
             const fullName = formData.get('fullName');
-            const username = formData.get('username');
-            const schoolId = formData.get('schoolId');
+            const studentId = formData.get('studentId');
             const university = formData.get('university');
             const email = formData.get('email');
             const phone = formData.get('phone');
@@ -249,21 +229,44 @@
             const confirmPassword = formData.get('confirmPassword');
             const terms = formData.get('terms');
             
+            // Debug logging
+            console.log('Form data submitted:', {
+                fullName,
+                studentId,
+                university,
+                email,
+                phone,
+                hostel,
+                password: password ? '***' : 'MISSING',
+                terms
+            });
+            
             // Password validation
             if (password !== confirmPassword) {
                 alert('Passwords do not match!');
                 return;
             }
             
-            // Terms validation
-            if (!terms) {
-                alert('You must agree to the Terms & Conditions');
+            // Basic validation
+            if (!fullName || !studentId || !university || !email || !phone || !hostel || !password || !terms) {
+                console.log('Validation failed - missing fields:', {
+                    fullName: !!fullName,
+                    studentId: !!studentId,
+                    university: !!university,
+                    email: !!email,
+                    phone: !!phone,
+                    hostel: !!hostel,
+                    password: !!password,
+                    terms: !!terms
+                });
+                alert('Please fill in all fields and accept the terms');
                 return;
             }
             
-            // Basic validation
-            if (!fullName || !username || !schoolId || !university || !email || !phone || !hostel || !password) {
-                alert('Please fill in all fields');
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address');
                 return;
             }
             
@@ -275,40 +278,128 @@
             
             const button = this.querySelector('button[type="submit"]');
             const originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Account...';
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Checking email...';
             button.disabled = true;
             
             try {
-                // Create user with Firebase Auth
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
+                // Update button text
+                button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Account...';
                 
-                // Send email verification using Firebase
-                await sendEmailVerification(user);
+                console.log('Starting Firebase operations...');
+                console.log('Creating user with email:', email);
                 
-                // Save user data to Firestore
-                await addDoc(collection(db, 'users'), {
-                    uid: user.uid,
-                    fullName: fullName,
-                    username: username,
-                    schoolID: schoolId,
-                    university: university,
-                    email: email,
-                    phone: phone,
-                    hostel: hostel,
-                    userType: 'seller',
-                    emailVerified: false,
-                    createdAt: serverTimestamp(),
-                    updatedAt: serverTimestamp()
-                });
+                let userCredential;
+                let user;
+                
+                try {
+                    // Try to create user with Firebase Auth
+                    userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    user = userCredential.user;
+                    console.log('New user created in Firebase Auth');
+                } catch (authError) {
+                    if (authError.code === 'auth/email-already-in-use') {
+                        // Email already exists in Firebase Auth, check if user exists in Firestore
+                        console.log('Email already exists in Firebase Auth, checking Firestore...');
+                        
+                        const { query, collection, where, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                        const userQuery = query(collection(db, 'users'), where('email', '==', email));
+                        const userSnapshot = await getDocs(userQuery);
+                        
+                        if (!userSnapshot.empty) {
+                            alert('This email is already registered. Please use a different email or try logging in.');
+                            button.innerHTML = originalText;
+                            button.disabled = false;
+                            return;
+                        } else {
+                            // Email exists in Auth but not in Firestore - this is an orphaned account
+                            // Try to sign in with the existing password to recover the account
+                            console.log('Attempting to recover orphaned account...');
+                            
+                            try {
+                                const { signInWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+                                userCredential = await signInWithEmailAndPassword(auth, email, password);
+                                user = userCredential.user;
+                                console.log('Successfully recovered orphaned account');
+                                
+                                // Continue with creating Firestore document for this recovered account
+                            } catch (signInError) {
+                                if (signInError.code === 'auth/wrong-password') {
+                                    alert('This email is already registered but the password is incorrect. Please use the correct password to login or use a different email address.');
+                                } else {
+                                    alert('This email is already registered in our system but there was an error recovering the account. Please try logging in or use a different email address.');
+                                }
+                                button.innerHTML = originalText;
+                                button.disabled = false;
+                                return;
+                            }
+                        }
+                    } else {
+                        // Other auth errors, re-throw them
+                        throw authError;
+                    }
+                }
+                console.log('User created/recovered successfully:', user.uid);
+                
+                // Check if user already has a Firestore document
+                const { query, collection, where, getDocs, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const existingUserQuery = query(collection(db, 'users'), where('uid', '==', user.uid));
+                const existingUserSnapshot = await getDocs(existingUserQuery);
+                
+                if (!existingUserSnapshot.empty) {
+                    console.log('User already has Firestore document, updating...');
+                    // User already exists in Firestore, update their data
+                    const userDoc = existingUserSnapshot.docs[0];
+                    const userData = {
+                        fullName: fullName,
+                        studentId: studentId,
+                        university: university,
+                        email: email,
+                        phone: phone,
+                        hostel: hostel,
+                        userType: 'buyer', // Ensure they're set as buyer
+                        updatedAt: serverTimestamp()
+                    };
+                    
+                    await updateDoc(userDoc.ref, userData);
+                    console.log('User data updated in Firestore');
+                } else {
+                    console.log('Creating new Firestore document...');
+                    // Send email verification using Firebase
+                    console.log('Sending email verification...');
+                    await sendEmailVerification(user);
+                    console.log('Email verification sent');
+                    
+                    // Prepare user data for Firestore
+                    const userData = {
+                        uid: user.uid,
+                        fullName: fullName,
+                        studentId: studentId,
+                        university: university,
+                        email: email,
+                        phone: phone,
+                        hostel: hostel,
+                        userType: 'buyer', // All users are buyers by default
+                        emailVerified: false,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    };
+                    
+                    console.log('Saving user data to Firestore:', userData);
+                    
+                    // Save user data to Firestore
+                    const docRef = await addDoc(collection(db, 'users'), userData);
+                    console.log('User data saved to Firestore with ID:', docRef.id);
+                }
                 
                 // Update user profile
+                console.log('Updating user profile...');
                 await updateProfile(user, {
                     displayName: fullName
                 });
+                console.log('User profile updated');
                 
-                console.log('Seller account created successfully:', user);
-                alert('Seller account created successfully! Please check your email for verification.');
+                console.log('Buyer account created successfully:', user);
+                alert('Buyer account created successfully! You can now login as both buyer and seller. Please check your email for verification.');
                 window.location.href = 'email-verification.html';
                 
             } catch (error) {

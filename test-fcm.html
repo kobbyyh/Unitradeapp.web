@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FCM Test - Unitrade</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background: #0d9488;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button:hover { background: #0f766e; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 Firebase Cloud Messaging Test</h1>
+            <p>Test push notifications for Unitrade sellers</p>
+        </div>
+
+        <div id="status" class="status info">
+            <strong>Status:</strong> Initializing FCM...
+        </div>
+
+        <div class="controls">
+            <button id="initBtn" onclick="initializeFCM()">Initialize FCM</button>
+            <button id="testBtn" onclick="sendTestNotification()" disabled>Send Test Notification</button>
+            <button id="simpleBtn" onclick="showSimpleNotification()">Show Simple Notification</button>
+            <button id="permissionBtn" onclick="requestPermission()">Request Permission</button>
+            <button id="clearBtn" onclick="clearLog()">Clear Log</button>
+        </div>
+
+        <div class="log" id="log">
+            <div>📱 FCM Test Console</div>
+            <div>========================</div>
+        </div>
+
+        <div class="info">
+            <h3>📋 Instructions:</h3>
+            <ol>
+                <li>Click "Initialize FCM" to set up Firebase Cloud Messaging</li>
+                <li>Click "Request Permission" to allow notifications</li>
+                <li>Click "Send Test Notification" to test notifications</li>
+                <li>Check your browser's notification area</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+    
+    <!-- FCM Service -->
+    <script src="js/fcm-service.js"></script>
+
+    <script>
+        let fcmInitialized = false;
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = `<strong>Status:</strong> ${message}`;
+        }
+
+        async function initializeFCM() {
+            log('🚀 Starting FCM initialization...');
+            updateStatus('Initializing FCM...', 'info');
+
+            try {
+                // Check if FCM service is available
+                if (typeof fcmService === 'undefined') {
+                    throw new Error('FCM service not loaded');
+                }
+
+                // Initialize FCM (it will handle Firebase initialization internally)
+                const success = await fcmService.initialize();
+                
+                if (success) {
+                    fcmInitialized = true;
+                    updateStatus('FCM initialized successfully!', 'success');
+                    document.getElementById('testBtn').disabled = false;
+                    log('✅ FCM initialized successfully');
+                } else {
+                    updateStatus('FCM initialization failed', 'error');
+                    log('❌ FCM initialization failed');
+                }
+
+            } catch (error) {
+                updateStatus('FCM initialization failed: ' + error.message, 'error');
+                log('❌ Error: ' + error.message);
+            }
+        }
+
+        async function requestPermission() {
+            log('🔔 Requesting notification permission...');
+            
+            try {
+                const permission = await Notification.requestPermission();
+                log(`🔔 Permission result: ${permission}`);
+                
+                if (permission === 'granted') {
+                    updateStatus('Notification permission granted!', 'success');
+                } else {
+                    updateStatus('Notification permission denied', 'warning');
+                }
+            } catch (error) {
+                log('❌ Permission error: ' + error.message);
+                updateStatus('Permission request failed', 'error');
+            }
+        }
+
+        async function sendTestNotification() {
+            if (!fcmInitialized) {
+                log('❌ FCM not initialized');
+                return;
+            }
+
+            log('🧪 Sending test notification...');
+            updateStatus('Sending test notification...', 'info');
+
+            try {
+                const success = await fcmService.sendTestNotification();
+                
+                if (success) {
+                    updateStatus('Test notification sent!', 'success');
+                    log('✅ Test notification sent successfully');
+                } else {
+                    updateStatus('Test notification failed', 'error');
+                    log('❌ Test notification failed');
+                }
+            } catch (error) {
+                log('❌ Error: ' + error.message);
+                updateStatus('Test notification failed', 'error');
+            }
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '<div>📱 FCM Test Console</div><div>========================</div>';
+        }
+
+        function showSimpleNotification() {
+            log('🔔 Testing simple notification...');
+            
+            if (Notification.permission === 'granted') {
+                try {
+                    const notification = new Notification('Simple Test', {
+                        body: 'This is a simple test notification',
+                        icon: '/images/app_logo.png'
+                    });
+                    
+                    log('✅ Simple notification created');
+                    
+                    notification.onclick = () => {
+                        log('🔔 Simple notification clicked');
+                        notification.close();
+                    };
+                    
+                } catch (error) {
+                    log('❌ Simple notification error: ' + error.message);
+                }
+            } else {
+                log('❌ Permission not granted: ' + Notification.permission);
+            }
+        }
+
+        // Auto-initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            log('📱 FCM Test Page Loaded');
+            log('⚠️ Note: You need to configure Firebase config to use FCM');
+        });
+    </script>
+</body>
+</html>

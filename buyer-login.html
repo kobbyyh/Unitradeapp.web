@@ -72,9 +72,10 @@
 
             <div class="mt-6 text-center">
                 <p class="text-gray-600">Don't have an account?</p>
-                <a href="buyer-signup.html" class="text-teal-600 hover:text-teal-800 font-medium">
+                <a href="signup.html" class="text-teal-600 hover:text-teal-800 font-medium">
                     Sign up as a Buyer
                 </a>
+                <p class="text-sm text-gray-500 mt-2">Your account works for both buyer and seller login!</p>
             </div>
         </div>
 
@@ -142,6 +143,7 @@
                 // Check user type and redirect accordingly
                 checkUserType(user);
             }
+            // If no user, stay on login page
         });
 
         // Check user type from Firestore
@@ -161,11 +163,8 @@
                         return;
                     }
 
-                    if (userDoc.userType === 'seller') {
-                        window.location.href = 'seller-dashboard.html';
-                    } else {
-                        window.location.href = 'buyer-dashboard.html';
-                    }
+                    // All users are buyers by default, redirect to buyer dashboard
+                    window.location.href = 'buyer-dashboard.html';
                 } else {
                     // Default to buyer if no user type found
                     if (!user.emailVerified) {
@@ -239,20 +238,20 @@
         });
 
         // Clear session function
-        window.clearSession = async function() {
-            if (confirm('This will clear your current session. Are you sure?')) {
-                try {
-                    await signOut(auth);
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    alert('Session cleared successfully!');
-                    window.location.reload();
-                } catch (error) {
-                    console.error('Error clearing session:', error);
-                    alert('Error clearing session. Please try again.');
-                }
-            }
-        }
+        // window.clearSession = async function() {
+        //     if (confirm('This will clear your current session. Are you sure?')) {
+        //         try {
+        //             await signOut(auth);
+        //             localStorage.clear();
+        //             sessionStorage.clear();
+        //             alert('Session cleared successfully!');
+        //             window.location.reload();
+        //         } catch (error) {
+        //             console.error('Error clearing session:', error);
+        //             alert('Error clearing session. Please try again.');
+        //         }
+        //     }
+        // }
     </script>
 </body>
 

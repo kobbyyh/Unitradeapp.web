@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buyer Signup - Unitrade</title>
+    <title>Signup - Unitrade</title>
     <link rel="icon" type="image/png" href="./images/app_logo.png">
     <link rel="shortcut icon" type="image/png" href="./images/app_logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,6 +17,17 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
+        .role-option {
+            transition: all 0.3s ease;
+        }
+        .role-option.selected {
+            background: linear-gradient(135deg, #14b8a6, #0d9488);
+            color: white;
+            transform: scale(1.02);
+        }
+        .role-option:hover {
+            transform: scale(1.02);
+        }
     </style>
 </head>
 <body class="gradient-bg min-h-screen py-8">
@@ -24,13 +35,34 @@
         <!-- Header -->
         <div class="text-center mb-8">
             <img src="./images/app_logo.png" alt="Unitrade" class="h-16 w-16 mx-auto mb-4">
-            <h1 class="text-3xl font-bold text-gray-900">Buyer Signup</h1>
-            <p class="text-gray-600 mt-2">Join Unitrade as a buyer</p>
+            <h1 class="text-3xl font-bold text-gray-900">Join Unitrade</h1>
+            <p class="text-gray-600 mt-2">Create your account and choose your role</p>
         </div>
 
         <!-- Signup Form -->
         <div class="glass-effect rounded-3xl p-8 shadow-xl">
             <form id="signupForm" class="space-y-6">
+                <!-- Role Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-4">
+                        <i class="fas fa-users text-teal-600 mr-2"></i>
+                        Choose Your Role
+                    </label>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="role-option bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer text-center" data-role="buyer">
+                            <i class="fas fa-shopping-cart text-3xl text-teal-600 mb-3"></i>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Buyer</h3>
+                            <p class="text-sm text-gray-600">Browse and purchase items from other students</p>
+                        </div>
+                        <div class="role-option bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer text-center" data-role="seller">
+                            <i class="fas fa-store text-3xl text-teal-600 mb-3"></i>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Seller</h3>
+                            <p class="text-sm text-gray-600">Sell your items to other students</p>
+                        </div>
+                    </div>
+                    <input type="hidden" id="userRole" name="userRole" required>
+                </div>
+
                 <div class="grid md:grid-cols-2 gap-6">
                     <div>
                         <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">
@@ -85,24 +117,48 @@
                     <p class="text-sm text-gray-500 mt-1">Must be a valid university email address</p>
                 </div>
 
-                <div>
-                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-phone text-teal-600 mr-2"></i>
-                        Phone Number
-                    </label>
-                    <input type="tel" id="phone" name="phone" required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
-                           placeholder="Your phone number">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-phone text-teal-600 mr-2"></i>
+                            Phone Number
+                        </label>
+                        <input type="tel" id="phone" name="phone" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                               placeholder="Your phone number">
+                    </div>
+
+                    <div>
+                        <label for="hostel" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-home text-teal-600 mr-2"></i>
+                            Hostel
+                        </label>
+                        <input type="text" id="hostel" name="hostel" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                               placeholder="Your hostel name">
+                    </div>
                 </div>
 
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-lock text-teal-600 mr-2"></i>
-                        Password
-                    </label>
-                    <input type="password" id="password" name="password" required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
-                           placeholder="Create a strong password">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock text-teal-600 mr-2"></i>
+                            Password
+                        </label>
+                        <input type="password" id="password" name="password" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                               placeholder="Create a strong password">
+                    </div>
+
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock text-teal-600 mr-2"></i>
+                            Confirm Password
+                        </label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                               placeholder="Confirm password">
+                    </div>
                 </div>
 
                 <div class="flex items-start">
@@ -122,9 +178,15 @@
 
             <div class="mt-6 text-center">
                 <p class="text-gray-600">Already have an account?</p>
-                <a href="buyer-login.html" class="text-teal-600 hover:text-teal-800 font-medium">
-                    Login as a Buyer
-                </a>
+                <div class="space-x-4">
+                    <a href="buyer-login.html" class="text-teal-600 hover:text-teal-800 font-medium">
+                        Login as Buyer
+                    </a>
+                    <span class="text-gray-400">|</span>
+                    <a href="seller-login.html" class="text-teal-600 hover:text-teal-800 font-medium">
+                        Login as Seller
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -164,9 +226,22 @@
             if (user) {
                 // Only redirect if email is verified
                 if (user.emailVerified) {
+                    // Redirect based on user type - this will be handled after account creation
                     window.location.href = 'buyer-dashboard.html';
                 }
             }
+        });
+
+        // Role selection functionality
+        document.querySelectorAll('.role-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('selected'));
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                // Set the hidden input value
+                document.getElementById('userRole').value = this.dataset.role;
+            });
         });
 
         // Handle signup form submission
@@ -179,7 +254,10 @@
             const university = formData.get('university');
             const email = formData.get('email');
             const phone = formData.get('phone');
+            const hostel = formData.get('hostel');
             const password = formData.get('password');
+            const confirmPassword = formData.get('confirmPassword');
+            const userRole = formData.get('userRole');
             const terms = formData.get('terms');
             
             // Debug logging
@@ -189,19 +267,35 @@
                 university,
                 email,
                 phone,
+                hostel,
                 password: password ? '***' : 'MISSING',
+                userRole,
                 terms
             });
             
+            // Role validation
+            if (!userRole) {
+                alert('Please select your role (Buyer or Seller)');
+                return;
+            }
+            
+            // Password validation
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
             // Basic validation
-            if (!fullName || !studentId || !university || !email || !phone || !password || !terms) {
+            if (!fullName || !studentId || !university || !email || !phone || !hostel || !password || !terms) {
                 console.log('Validation failed - missing fields:', {
                     fullName: !!fullName,
                     studentId: !!studentId,
                     university: !!university,
                     email: !!email,
                     phone: !!phone,
+                    hostel: !!hostel,
                     password: !!password,
+                    userRole: !!userRole,
                     terms: !!terms
                 });
                 alert('Please fill in all fields and accept the terms');
@@ -223,10 +317,25 @@
             
             const button = this.querySelector('button[type="submit"]');
             const originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Account...';
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Checking email...';
             button.disabled = true;
             
             try {
+                // Check if email is already registered (any role)
+                const { query, collection, where, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const userQuery = query(collection(db, 'users'), where('email', '==', email));
+                const userSnapshot = await getDocs(userQuery);
+                
+                if (!userSnapshot.empty) {
+                    alert('This email is already registered. Please use a different email or try logging in.');
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    return;
+                }
+                
+                // Update button text
+                button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Account...';
+                
                 console.log('Starting Firebase operations...');
                 console.log('Creating user with email:', email);
                 
@@ -248,7 +357,8 @@
                     university: university,
                     email: email,
                     phone: phone,
-                    userType: 'buyer',
+                    hostel: hostel,
+                    userType: userRole, // Use the selected role
                     emailVerified: false,
                     createdAt: serverTimestamp(),
                     updatedAt: serverTimestamp()
@@ -267,8 +377,8 @@
                 });
                 console.log('User profile updated');
                 
-                console.log('Buyer account created successfully:', user);
-                alert('Account created successfully! Please check your email for verification.');
+                console.log(`${userRole} account created successfully:`, user);
+                alert(`${userRole.charAt(0).toUpperCase() + userRole.slice(1)} account created successfully! Please check your email for verification.`);
                 window.location.href = 'email-verification.html';
                 
             } catch (error) {

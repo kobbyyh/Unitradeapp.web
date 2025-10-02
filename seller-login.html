@@ -25,7 +25,7 @@
         <div class="text-center mb-8">
             <img src="./images/app_logo.png" alt="Unitrade" class="h-20 w-20 mx-auto mb-4">
             <h1 class="text-3xl font-bold text-gray-900">Seller Login</h1>
-            <p class="text-gray-600 mt-2">Access your seller dashboard</p>
+            <p class="text-gray-600 mt-2">Login as seller using your buyer account credentials</p>
         </div>
 
         <!-- Login Form -->
@@ -69,9 +69,10 @@
 
             <div class="mt-6 text-center">
                 <p class="text-gray-600">Don't have an account?</p>
-                <a href="seller-signup.html" class="text-teal-600 hover:text-teal-800 font-medium">
-                    Sign up as a Seller
+                <a href="signup.html" class="text-teal-600 hover:text-teal-800 font-medium">
+                    Sign up as a Buyer
                 </a>
+                <p class="text-sm text-gray-500 mt-2">Buyers can also login as sellers!</p>
             </div>
         </div>
 
@@ -81,10 +82,10 @@
                 <i class="fas fa-arrow-left mr-2"></i>
                 Back to Home
             </a>
-            <button onclick="clearSession()" class="text-red-600 hover:text-red-700 text-sm">
+            <!-- <button onclick="clearSession()" class="text-red-600 hover:text-red-700 text-sm">
                 <i class="fas fa-sign-out-alt mr-1"></i>
                 Clear Session & Start Fresh
-            </button>
+            </button> -->
         </div>
     </div>
 
@@ -139,6 +140,7 @@
                 // Check user type and redirect accordingly
                 checkUserType(user);
             }
+            // If no user, stay on login page
         });
 
         // Check user type from Firestore
@@ -158,11 +160,8 @@
                         return;
                     }
                     
-                    if (userDoc.userType === 'seller') {
-                        window.location.href = 'seller-dashboard.html';
-                    } else {
-                        window.location.href = 'buyer-dashboard.html';
-                    }
+                    // All users can access seller dashboard, redirect to seller dashboard
+                    window.location.href = 'seller-dashboard.html';
                 } else {
                     // Default to seller if no user type found
                     if (!user.emailVerified) {
@@ -234,13 +233,9 @@
                     return;
                 }
                 
-                // Check if user is a seller
-                if (userData.userType !== 'seller') {
-                    alert('This account is not registered as a seller. Please use buyer login.');
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                    return;
-                }
+                // Allow any registered user to login as seller
+                // (All users are buyers by default, but can also act as sellers)
+                console.log('User type:', userData.userType, '- Allowing login as seller');
                 
                 // Sign in with Firebase using the email
                 const userCredential = await signInWithEmailAndPassword(auth, userData.email, password);
@@ -275,20 +270,20 @@
         });
         
         // Clear session function
-        window.clearSession = async function() {
-            if (confirm('This will clear your current session. Are you sure?')) {
-                try {
-                    await signOut(auth);
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    alert('Session cleared successfully!');
-                    window.location.reload();
-                } catch (error) {
-                    console.error('Error clearing session:', error);
-                    alert('Error clearing session. Please try again.');
-                }
-            }
-        }
+        // window.clearSession = async function() {
+        //     if (confirm('This will clear your current session. Are you sure?')) {
+        //         try {
+        //             await signOut(auth);
+        //             localStorage.clear();
+        //             sessionStorage.clear();
+        //             alert('Session cleared successfully!');
+        //             window.location.reload();
+        //         } catch (error) {
+        //             console.error('Error clearing session:', error);
+        //             alert('Error clearing session. Please try again.');
+        //         }
+        //     }
+        // }
     </script>
 </body>
 </html>

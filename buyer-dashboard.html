@@ -9,6 +9,61 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="js/firebase-config-public.js"></script>
     <script src="js/firebase-init.js"></script>
+    <style>
+        /* Ensure dropdown menus work properly */
+        .group:hover .group-hover\:block {
+            display: block;
+        }
+        
+        /* Tablet menu styling */
+        #tabletMenu {
+            transition: all 0.2s ease;
+        }
+        
+        /* Responsive navigation adjustments */
+        @media (max-width: 1024px) {
+            .hidden.lg\:flex {
+                display: none !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hidden.md\:flex {
+                display: none !important;
+            }
+        }
+        
+        /* Compact navigation styling */
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(13, 148, 136, 0.1);
+        }
+        
+        /* University filter styling */
+        .university-filter {
+            background-color: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .university-filter:hover {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        
+        .university-filter.active {
+            background-color: #0d9488;
+            color: white;
+            border-color: #0d9488;
+        }
+        
+        .university-filter.active:hover {
+            background-color: #0f766e;
+        }
+    </style>
 </head>
 <body class="gradient-bg min-h-screen">
     <!-- Navigation -->
@@ -21,20 +76,57 @@
                 </div>
                 
                 <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-4">
-                    <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
+                <div class="hidden lg:flex items-center space-x-2">
+                    <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 px-2 py-2 rounded-md text-xs font-medium">
                         <i class="fas fa-home mr-1"></i>Dashboard
                     </a>
-                    <a href="buyer-orders.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
-                        <i class="fas fa-shopping-bag mr-1"></i>My Orders
+                    <a href="buyer-orders.html" class="text-gray-700 hover:text-teal-600 px-2 py-2 rounded-md text-xs font-medium">
+                        <i class="fas fa-shopping-bag mr-1"></i>Orders
                     </a>
-                    <a href="profile-settings.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
-                        <i class="fas fa-user mr-1"></i>Profile
+                    <a href="seller-dashboard.html" class="text-gray-700 hover:text-teal-600 px-2 py-2 rounded-md text-xs font-medium">
+                        <i class="fas fa-store mr-1"></i>Sell
                     </a>
-                    <span id="userName" class="text-gray-700 px-3 py-2 text-sm font-medium">Loading...</span>
-                    <button onclick="logout()" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
-                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
-                    </button>
+                    <div class="relative group">
+                        <button class="text-gray-700 hover:text-teal-600 px-2 py-2 rounded-md text-xs font-medium flex items-center">
+                            <i class="fas fa-user mr-1"></i>Profile
+                            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        </button>
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden group-hover:block">
+                            <a href="profile-settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-cog mr-2"></i>Settings
+                            </a>
+                            <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </button>
+                        </div>
+                    </div>
+                    <span id="userName" class="text-gray-600 px-2 py-2 text-xs font-medium">Loading...</span>
+                </div>
+
+                <!-- Medium screen navigation (tablet) -->
+                <div class="hidden md:flex lg:hidden items-center space-x-1">
+                    <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 px-1 py-2 rounded-md text-xs font-medium">
+                        <i class="fas fa-home"></i>
+                    </a>
+                    <a href="buyer-orders.html" class="text-gray-700 hover:text-teal-600 px-1 py-2 rounded-md text-xs font-medium">
+                        <i class="fas fa-shopping-bag"></i>
+                    </a>
+                    <a href="seller-dashboard.html" class="text-gray-700 hover:text-teal-600 px-1 py-2 rounded-md text-xs font-medium">
+                        <i class="fas fa-store"></i>
+                    </a>
+                    <div class="relative">
+                        <button onclick="toggleTabletMenu()" class="text-gray-700 hover:text-teal-600 px-1 py-2 rounded-md text-xs font-medium">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div id="tabletMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden">
+                            <a href="profile-settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-cog mr-2"></i>Settings
+                            </a>
+                            <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Mobile menu button -->
@@ -48,20 +140,23 @@
             <!-- Mobile Navigation Menu -->
             <div id="mobileMenu" class="md:hidden hidden transition-all duration-300 ease-in-out">
                 <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white/95 backdrop-blur-md rounded-lg mt-2 shadow-xl border border-gray-200">
-                    <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium">
+                    <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-home mr-2"></i>Dashboard
                     </a>
-                    <a href="buyer-orders.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium">
+                    <a href="buyer-orders.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-shopping-bag mr-2"></i>My Orders
                     </a>
-                    <a href="profile-settings.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-base font-medium">
-                        <i class="fas fa-user mr-2"></i>Profile
+                    <a href="seller-dashboard.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-store mr-2"></i>Seller Dashboard
+                    </a>
+                    <a href="profile-settings.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-cog mr-2"></i>Settings
                     </a>
                     <div class="border-t border-gray-200 pt-2 mt-2">
                         <div class="px-3 py-2">
-                            <span id="userNameMobile" class="text-gray-700 text-sm">Loading...</span>
+                            <span id="userNameMobile" class="text-gray-700 text-xs">Loading...</span>
                         </div>
-                        <button onclick="logout()" class="text-gray-700 hover:text-teal-600 block w-full text-left px-3 py-2 rounded-md text-base font-medium">
+                        <button onclick="logout()" class="text-gray-700 hover:text-teal-600 block w-full text-left px-3 py-2 rounded-md text-sm font-medium">
                             <i class="fas fa-sign-out-alt mr-2"></i>Logout
                         </button>
                     </div>
@@ -82,6 +177,23 @@
                 <button onclick="searchProducts()" class="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700">
                     <i class="fas fa-search mr-2"></i>Search
                 </button>
+            </div>
+            
+            <!-- University Filter -->
+            <div class="mb-6">
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-medium text-gray-700">Filter by University:</span>
+                    <div class="flex gap-2">
+                        <button id="myUniversityBtn" onclick="filterByUniversity('my')" 
+                                class="university-filter active px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            <i class="fas fa-university mr-2"></i>My University
+                        </button>
+                        <button id="allUniversitiesBtn" onclick="filterByUniversity('all')" 
+                                class="university-filter px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            <i class="fas fa-globe mr-2"></i>All Universities
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <!-- Categories -->
@@ -133,6 +245,8 @@
         // Global variables
         let auth, db;
         let allProducts = [];
+        let currentUserUniversity = '';
+        let currentUniversityFilter = 'my'; // 'my' or 'all'
 
         // Mobile menu toggle function
         function toggleMobileMenu() {
@@ -148,6 +262,67 @@
             } else {
                 mobileMenu.classList.add('hidden');
                 mobileMenu.style.display = 'none';
+            }
+        }
+
+        // Tablet menu toggle function
+        function toggleTabletMenu() {
+            const tabletMenu = document.getElementById('tabletMenu');
+            if (!tabletMenu) {
+                console.error('Tablet menu element not found');
+                return;
+            }
+            
+            if (tabletMenu.classList.contains('hidden')) {
+                tabletMenu.classList.remove('hidden');
+            } else {
+                tabletMenu.classList.add('hidden');
+            }
+        }
+
+        // Close tablet menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const tabletMenu = document.getElementById('tabletMenu');
+            const tabletButton = event.target.closest('button[onclick="toggleTabletMenu()"]');
+            
+            if (tabletMenu && !tabletMenu.contains(event.target) && !tabletButton) {
+                tabletMenu.classList.add('hidden');
+            }
+        });
+
+        // Check user type from Firestore
+        async function checkUserType(user) {
+            try {
+                const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const usersRef = collection(db, 'users');
+                const q = query(usersRef, where('email', '==', user.email));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const userData = querySnapshot.docs[0].data();
+                    // All users are buyers by default, allow access
+                    const userName = user.displayName || userData.fullName || 'Buyer';
+                    document.getElementById('userName').textContent = userName;
+                    document.getElementById('userNameMobile').textContent = userName;
+                    
+                    // Store user's university for filtering
+                    currentUserUniversity = userData.university || userData.sellerUniversity || '';
+                    console.log('User authenticated as buyer:', userName, 'University:', currentUserUniversity);
+                    
+                    // Load products after successful authentication
+                    await loadProducts();
+                    
+                    // Set up real-time search
+                    setupSearchListener();
+                } else {
+                    // User not found in database, redirect to login
+                    console.log('User not found in database, redirecting to login');
+                    window.location.href = 'buyer-login.html';
+                }
+            } catch (error) {
+                console.error('Error checking user type:', error);
+                window.location.href = 'buyer-login.html';
             }
         }
 
@@ -194,24 +369,15 @@
                 
                 console.log('✅ Firebase initialized');
                 
-                // Load products immediately
-                await loadProducts();
-                
                 // Set up auth listener
                 auth.onAuthStateChanged((user) => {
                     if (user) {
-                        const userName = user.displayName || 'Buyer';
-                        document.getElementById('userName').textContent = userName;
-                        document.getElementById('userNameMobile').textContent = userName;
+                        // Check if user is a buyer
+                        checkUserType(user);
                     } else {
-                        const guestHtml = `
-                            <span class="text-gray-600">Guest User</span>
-                            <a href="buyer-login.html" class="ml-2 bg-teal-600 text-white px-3 py-1 rounded text-sm hover:bg-teal-700">
-                                Login to Order
-                            </a>
-                        `;
-                        document.getElementById('userName').innerHTML = guestHtml;
-                        document.getElementById('userNameMobile').innerHTML = 'Guest User';
+                        // Redirect to login if not authenticated
+                        console.log('No user authenticated, redirecting to login');
+                        window.location.href = 'buyer-login.html';
                     }
                 });
                 
@@ -316,11 +482,78 @@
 
         // Search products
         function searchProducts() {
+            applyFilters();
+        }
+
+        // Filter by category
+        function filterByCategory(category) {
+            // Update active category
+            document.querySelectorAll('.category-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            event.target.closest('.category-chip').classList.add('active');
+            
+            // Apply all filters
+            applyFilters();
+        }
+
+        // Filter by university
+        function filterByUniversity(filterType) {
+            currentUniversityFilter = filterType;
+            
+            // Update active university filter button
+            document.querySelectorAll('.university-filter').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (filterType === 'my') {
+                document.getElementById('myUniversityBtn').classList.add('active');
+            } else {
+                document.getElementById('allUniversitiesBtn').classList.add('active');
+            }
+            
+            // Apply university filter
+            applyFilters();
+        }
+
+        // Apply all active filters
+        function applyFilters() {
+            let filtered = allProducts;
+            
+            // Apply university filter
+            if (currentUniversityFilter === 'my' && currentUserUniversity) {
+                console.log('🔍 Filtering by university:', currentUserUniversity);
+                console.log('🔍 Products before filter:', filtered.length);
+                filtered = filtered.filter(product => {
+                    const matches = product.university === currentUserUniversity;
+                    if (!matches) {
+                        console.log('❌ Product filtered out:', product.title, 'University:', product.university);
+                    }
+                    return matches;
+                });
+                console.log('🔍 Products after filter:', filtered.length);
+            } else if (currentUniversityFilter === 'all') {
+                console.log('🌍 Showing all universities');
+            }
+            
+            // Apply category filter
+            const activeCategory = document.querySelector('.category-chip.active');
+            if (activeCategory) {
+                const category = activeCategory.textContent.trim();
+                if (category !== 'All') {
+                    filtered = filtered.filter(product => product.category === category);
+                }
+            }
+            
+            // Apply search filter
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allProducts.filter(product => 
-                (product.title || '').toLowerCase().includes(searchTerm) ||
-                (product.description || '').toLowerCase().includes(searchTerm)
-            );
+            if (searchTerm) {
+                filtered = filtered.filter(product => 
+                    product.title.toLowerCase().includes(searchTerm) ||
+                    product.description.toLowerCase().includes(searchTerm) ||
+                    product.category.toLowerCase().includes(searchTerm)
+                );
+            }
             
             // Sort filtered results by newest first
             filtered.sort((a, b) => {
@@ -332,28 +565,14 @@
             displayProducts(filtered);
         }
 
-        // Filter by category
-        function filterByCategory(category) {
-            // Update active category
-            document.querySelectorAll('.category-chip').forEach(chip => {
-                chip.classList.remove('active');
-            });
-            event.target.closest('.category-chip').classList.add('active');
-            
-            // Filter products
-            let filtered = allProducts;
-            if (category !== 'All') {
-                filtered = allProducts.filter(product => product.category === category);
+        // Set up real-time search listener
+        function setupSearchListener() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    applyFilters();
+                });
             }
-            
-            // Sort filtered results by newest first
-            filtered.sort((a, b) => {
-                const timestampA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
-                const timestampB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
-                return timestampB - timestampA;
-            });
-            
-            displayProducts(filtered);
         }
 
         // Logout
