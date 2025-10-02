@@ -269,7 +269,54 @@
             });
         }
 
-        // Make logout globally accessible
+        // Mobile menu toggle function
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (!mobileMenu) {
+                console.error('Mobile menu element not found');
+                return;
+            }
+            
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                console.log('Mobile menu shown');
+            } else {
+                mobileMenu.classList.add('hidden');
+                console.log('Mobile menu hidden');
+            }
+        }
+
+        // Mobile submenu toggle function
+        function toggleMobileSubMenu() {
+            console.log('Mobile submenu toggle clicked');
+            const mobileSubMenu = document.getElementById('mobileSubMenu');
+            if (!mobileSubMenu) {
+                console.error('Mobile submenu element not found');
+                return;
+            }
+            
+            if (mobileSubMenu.classList.contains('hidden')) {
+                mobileSubMenu.classList.remove('hidden');
+                console.log('Mobile submenu shown');
+            } else {
+                mobileSubMenu.classList.add('hidden');
+                console.log('Mobile submenu hidden');
+            }
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuButton = event.target.closest('button[onclick="toggleMobileMenu()"]');
+            
+            if (mobileMenu && !mobileMenu.contains(event.target) && !menuButton) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // Make functions globally accessible
+        window.toggleMobileMenu = toggleMobileMenu;
+        window.toggleMobileSubMenu = toggleMobileSubMenu;
         window.logout = logout;
     </script>
 </head>
@@ -282,7 +329,9 @@
                     <img src="./images/app_logo.png" alt="Unitrade" class="h-8 w-8 mr-3">
                     <h1 class="text-xl font-bold text-gray-900">Unitrade</h1>
                 </div>
-                <div class="flex items-center space-x-4">
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-4">
                     <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-home mr-1"></i>Dashboard
                     </a>
@@ -294,6 +343,43 @@
                     </a>
                     <button onclick="logout()" class="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </button>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-700 hover:text-teal-600">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="md:hidden hidden border-t border-gray-200 py-4">
+                <div class="flex flex-col space-y-3">
+                    <!-- Main Navigation Items (2 most important) -->
+                    <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 flex items-center">
+                        <i class="fas fa-home mr-3"></i> Dashboard
+                    </a>
+                    <a href="buyer-orders.html" class="text-teal-600 flex items-center">
+                        <i class="fas fa-shopping-cart mr-3"></i> My Orders
+                    </a>
+                    
+                    <!-- Menu Tab for Additional Items -->
+                    <div class="relative">
+                        <button onclick="toggleMobileSubMenu()" class="text-gray-700 hover:text-teal-600 flex items-center justify-between w-full">
+                            <span><i class="fas fa-ellipsis-h mr-3"></i>More</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="mobileSubMenu" class="hidden ml-6 mt-2 space-y-2">
+                            <a href="profile-settings.html" class="text-gray-500 hover:text-gray-700 flex items-center">
+                                <i class="fas fa-user-cog mr-3"></i> Profile
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <button onclick="logout()" class="text-red-600 hover:text-red-800 flex items-center">
+                        <i class="fas fa-sign-out-alt mr-3"></i> Logout
                     </button>
                 </div>
             </div>

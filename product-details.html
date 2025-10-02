@@ -56,7 +56,9 @@
                     <img src="./images/app_logo.png" alt="Unitrade" class="h-10 w-10 mr-3">
                     <span class="text-2xl font-bold text-teal-800">Unitrade</span>
                 </div>
-                <div class="flex items-center space-x-4">
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-4">
                     <a href="buyer-dashboard.html" class="text-gray-600 hover:text-teal-600">
                         <i class="fas fa-home mr-1"></i>
                         Dashboard
@@ -68,6 +70,30 @@
                     <button onclick="logout()" class="text-gray-600 hover:text-teal-600">
                         <i class="fas fa-sign-out-alt mr-1"></i>
                         Logout
+                    </button>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-teal-600">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="md:hidden hidden border-t border-gray-200 py-4">
+                <div class="flex flex-col space-y-3">
+                    <!-- Main Navigation Items (2 most important) -->
+                    <a href="buyer-dashboard.html" class="text-gray-600 hover:text-teal-600 flex items-center">
+                        <i class="fas fa-home mr-3"></i> Dashboard
+                    </a>
+                    <a href="profile-settings.html" class="text-gray-600 hover:text-teal-600 flex items-center">
+                        <i class="fas fa-user-cog mr-3"></i> Profile
+                    </a>
+                    
+                    <button onclick="logout()" class="text-red-600 hover:text-red-800 flex items-center">
+                        <i class="fas fa-sign-out-alt mr-3"></i> Logout
                     </button>
                 </div>
             </div>
@@ -785,7 +811,26 @@
             }
         }
         
-        // Make confirmOrder globally accessible
+        // Mobile menu toggle function
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+            }
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuButton = event.target.closest('button[onclick="toggleMobileMenu()"]');
+            
+            if (mobileMenu && !mobileMenu.contains(event.target) && !menuButton) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // Make functions globally accessible
+        window.toggleMobileMenu = toggleMobileMenu;
         window.confirmOrder = confirmOrder;
 
         function closeContactModal() {

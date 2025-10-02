@@ -52,17 +52,60 @@
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center">
                     <img src="./images/app_logo.png" alt="Unitrade" class="h-8 w-8 mr-3">
-                    <h1 class="text-xl font-bold text-gray-800">Unitrade - Notifications</h1>
+                    <h1 class="text-xl font-bold text-gray-800 hidden sm:block">Unitrade - Notifications</h1>
+                    <h1 class="text-lg font-bold text-gray-800 sm:hidden">Notifications</h1>
                 </div>
-                <div class="flex items-center space-x-4">
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-4">
                     <a href="seller-dashboard.html" class="text-gray-600 hover:text-gray-800">
                         <i class="fas fa-home mr-1"></i> Dashboard
                     </a>
                     <a href="seller-my-listings.html" class="text-gray-600 hover:text-gray-800">
                         <i class="fas fa-box mr-1"></i> My Listings
                     </a>
+                    <a href="buyer-dashboard.html" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-shopping-bag mr-1"></i> Buy
+                    </a>
                     <button onclick="logout()" class="text-red-600 hover:text-red-800">
                         <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </button>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="md:hidden hidden border-t border-gray-200 py-4">
+                <div class="flex flex-col space-y-3">
+                    <!-- Main Navigation Items (2 most important) -->
+                    <a href="seller-dashboard.html" class="text-gray-600 hover:text-gray-800 flex items-center">
+                        <i class="fas fa-home mr-3"></i> Dashboard
+                    </a>
+                    <a href="seller-my-listings.html" class="text-gray-600 hover:text-gray-800 flex items-center">
+                        <i class="fas fa-box mr-3"></i> My Listings
+                    </a>
+                    
+                    <!-- Menu Tab for Additional Items -->
+                    <div class="relative">
+                        <button onclick="toggleMobileSubMenu()" class="text-gray-600 hover:text-gray-800 flex items-center justify-between w-full">
+                            <span><i class="fas fa-ellipsis-h mr-3"></i>More</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="mobileSubMenu" class="hidden ml-6 mt-2 space-y-2">
+                            <a href="buyer-dashboard.html" class="text-gray-500 hover:text-gray-700 flex items-center">
+                                <i class="fas fa-shopping-bag mr-3"></i> Buy
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <button onclick="logout()" class="text-red-600 hover:text-red-800 flex items-center">
+                        <i class="fas fa-sign-out-alt mr-3"></i> Logout
                     </button>
                 </div>
             </div>
@@ -72,20 +115,10 @@
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Header -->
-        <div class="glass-effect rounded-lg p-6 mb-6">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800">Order Notifications</h2>
-                    <p class="text-gray-600">Stay updated with new orders and customer messages</p>
-                </div>
-                <div class="flex space-x-2">
-                    <button onclick="markAllAsRead()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-                        <i class="fas fa-check-double mr-1"></i> Mark All Read
-                    </button>
-                    <button onclick="refreshNotifications()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
-                        <i class="fas fa-sync-alt mr-1"></i> Refresh
-                    </button>
-                </div>
+        <div class="glass-effect rounded-lg p-4 sm:p-6 mb-6">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Order Notifications</h2>
+                <p class="text-sm sm:text-base text-gray-600">Stay updated with new orders and customer messages</p>
             </div>
         </div>
 
@@ -108,33 +141,33 @@
 
     <!-- Notification Template (Hidden) -->
     <template id="notificationTemplate">
-        <div class="notification-item glass-effect rounded-lg p-6 cursor-pointer" data-order-id="">
-            <div class="flex items-start space-x-4">
-                <div class="flex-shrink-0">
+        <div class="notification-item glass-effect rounded-lg p-4 sm:p-6 cursor-pointer" data-order-id="">
+            <div class="flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4">
+                <div class="flex-shrink-0 flex justify-center sm:justify-start">
                     <div class="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
                         <i class="fas fa-shopping-cart text-teal-600"></i>
                     </div>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-medium text-gray-900 notification-title">New Order</h3>
-                        <div class="flex items-center space-x-2">
-                            <span class="notification-time text-sm text-gray-500"></span>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                        <h3 class="text-base sm:text-lg font-medium text-gray-900 notification-title">New Order</h3>
+                        <div class="flex items-center justify-between sm:justify-end space-x-2">
+                            <span class="notification-time text-xs sm:text-sm text-gray-500"></span>
                             <span class="notification-status px-2 py-1 rounded-full text-xs font-medium"></span>
                         </div>
                     </div>
-                    <p class="notification-message text-gray-600 mt-1"></p>
-                    <div class="mt-3 flex items-center space-x-4 text-sm text-gray-500">
-                        <span class="notification-product"></span>
-                        <span class="notification-buyer"></span>
-                        <span class="notification-phone"></span>
-                        <span class="notification-total"></span>
+                    <p class="notification-message text-sm sm:text-base text-gray-600 mt-1"></p>
+                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs sm:text-sm text-gray-500">
+                        <div class="notification-product"></div>
+                        <div class="notification-buyer"></div>
+                        <div class="notification-phone"></div>
+                        <div class="notification-total"></div>
                     </div>
-                    <div class="mt-2 flex space-x-2">
-                        <button onclick="callBuyer(event)" class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600">
+                    <div class="mt-3 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                        <button onclick="callBuyer(event)" class="bg-green-500 text-white px-3 py-2 rounded text-xs hover:bg-green-600 flex items-center justify-center">
                             <i class="fas fa-phone mr-1"></i> Call Buyer
                         </button>
-                        <button onclick="whatsappBuyer(event)" class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">
+                        <button onclick="whatsappBuyer(event)" class="bg-green-600 text-white px-3 py-2 rounded text-xs hover:bg-green-700 flex items-center justify-center">
                             <i class="fab fa-whatsapp mr-1"></i> WhatsApp
                         </button>
                     </div>
@@ -373,32 +406,6 @@
             }
         }
 
-        // Mark all as read
-        async function markAllAsRead() {
-            try {
-                const unreadNotifications = notifications.filter(n => !n.isRead);
-                
-                for (const notification of unreadNotifications) {
-                    await updateDoc(doc(db, 'orders', notification.id), {
-                        isRead: true,
-                        readAt: serverTimestamp()
-                    });
-                }
-
-                // Update local state
-                notifications.forEach(n => n.isRead = true);
-                renderNotifications();
-                
-                console.log('✅ All notifications marked as read');
-            } catch (error) {
-                console.error('❌ Error marking all as read:', error);
-            }
-        }
-
-        // Refresh notifications
-        async function refreshNotifications() {
-            await loadNotifications();
-        }
 
         // Set up real-time listener
         function setupRealtimeListener() {
@@ -502,7 +509,44 @@
             }
         }
 
-        // Make contact functions globally accessible
+        // Mobile menu toggle function
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+            }
+        }
+
+        // Mobile submenu toggle function
+        function toggleMobileSubMenu() {
+            console.log('Mobile submenu toggle clicked');
+            const mobileSubMenu = document.getElementById('mobileSubMenu');
+            if (!mobileSubMenu) {
+                console.error('Mobile submenu element not found');
+                return;
+            }
+            
+            if (mobileSubMenu.classList.contains('hidden')) {
+                mobileSubMenu.classList.remove('hidden');
+                console.log('Mobile submenu shown');
+            } else {
+                mobileSubMenu.classList.add('hidden');
+                console.log('Mobile submenu hidden');
+            }
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuButton = event.target.closest('button[onclick="toggleMobileMenu()"]');
+            
+            if (mobileMenu && !mobileMenu.contains(event.target) && !menuButton) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // Make functions globally accessible
+        window.toggleMobileMenu = toggleMobileMenu;
         window.callBuyer = callBuyer;
         window.whatsappBuyer = whatsappBuyer;
     </script>

@@ -140,23 +140,35 @@
             <!-- Mobile Navigation Menu -->
             <div id="mobileMenu" class="md:hidden hidden transition-all duration-300 ease-in-out">
                 <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white/95 backdrop-blur-md rounded-lg mt-2 shadow-xl border border-gray-200">
+                    <!-- Main Navigation Items (2 most important) -->
                     <a href="buyer-dashboard.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-home mr-2"></i>Dashboard
                     </a>
                     <a href="buyer-orders.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-shopping-bag mr-2"></i>My Orders
                     </a>
-                    <a href="seller-dashboard.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
-                        <i class="fas fa-store mr-2"></i>Seller Dashboard
-                    </a>
-                    <a href="profile-settings.html" class="text-gray-700 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
-                        <i class="fas fa-cog mr-2"></i>Settings
-                    </a>
+                    
+                    <!-- Menu Tab for Additional Items -->
+                    <div class="relative">
+                        <button onclick="toggleMobileSubMenu()" class="text-gray-700 hover:text-teal-600 block w-full text-left px-3 py-2 rounded-md text-sm font-medium flex items-center justify-between">
+                            <span><i class="fas fa-ellipsis-h mr-2"></i>More</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="mobileSubMenu" class="hidden ml-4 mt-1 space-y-1">
+                            <a href="seller-dashboard.html" class="text-gray-600 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-store mr-2"></i>Sell
+                            </a>
+                            <a href="profile-settings.html" class="text-gray-600 hover:text-teal-600 block px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-cog mr-2"></i>Settings
+                            </a>
+                        </div>
+                    </div>
+                    
                     <div class="border-t border-gray-200 pt-2 mt-2">
                         <div class="px-3 py-2">
                             <span id="userNameMobile" class="text-gray-700 text-xs">Loading...</span>
                         </div>
-                        <button onclick="logout()" class="text-gray-700 hover:text-teal-600 block w-full text-left px-3 py-2 rounded-md text-sm font-medium">
+                        <button onclick="logout()" class="text-red-600 hover:text-red-800 block w-full text-left px-3 py-2 rounded-md text-sm font-medium">
                             <i class="fas fa-sign-out-alt mr-2"></i>Logout
                         </button>
                     </div>
@@ -262,6 +274,24 @@
             } else {
                 mobileMenu.classList.add('hidden');
                 mobileMenu.style.display = 'none';
+            }
+        }
+
+        // Mobile submenu toggle function
+        function toggleMobileSubMenu() {
+            console.log('Mobile submenu toggle clicked');
+            const mobileSubMenu = document.getElementById('mobileSubMenu');
+            if (!mobileSubMenu) {
+                console.error('Mobile submenu element not found');
+                return;
+            }
+            
+            if (mobileSubMenu.classList.contains('hidden')) {
+                mobileSubMenu.classList.remove('hidden');
+                console.log('Mobile submenu shown');
+            } else {
+                mobileSubMenu.classList.add('hidden');
+                console.log('Mobile submenu hidden');
             }
         }
 
